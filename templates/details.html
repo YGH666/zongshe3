@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>快发A股资讯平台</title>
+{#    <script type="text/javascript" src="../static/js/rotate.js"></script>#}
+    <script src="../static/js/jquery-3.3.1.min.js"></script>
+    <script src="../static/js/move++.js"></script>
+      <link rel="stylesheet" href="../static/layui/css/layui.css" media="all">
+    <script src="../static/layui/layui.js"></script>
+    <link rel="stylesheet" href="../static/styles/login.css">
+    <link rel="stylesheet" href="../static/styles/index1.css">
+    <link rel="stylesheet" type="text/css" href="../static/styles/search-form.css" />
+    <script>
+        window.onload=function () {
+            var keyword = GetRequest();
+
+            console.log(keyword);
+            console.log(JSON.stringify(keyword));
+            search_req(keyword);
+
+            /////////////////////////////////////////////// ///////////////////////////////////////////////
+	  document.getElementById('showSignin2').onclick = document.getElementById('btn_showlogin').onclick =document.getElementById('showSignin1').onclick = showLogin;
+      document.getElementById('close_minilogin').onclick = closeLogin;
+      document.getElementById('showSignup').onclick = showSignup;
+      document.getElementById('close_minisignup').onclick = closeSignup;
+      document.getElementById('showFindpass').onclick = showFindpass;
+      document.getElementById('close_findpass').onclick = closeFindpass;
+
+
+      var mini_login = document.getElementsByClassName('mini_login')[0];
+      var cover = document.getElementsByClassName('cover')[0];
+      var mini_signup = document.getElementsByClassName('mini_signup')[0];
+      var mini_findpass = document.getElementsByClassName('mini_findpass')[0];
+
+      function showLogin() {
+        mini_signup.style.display = 'none';
+        mini_login.style.display = 'block';
+        mini_findpass.style.display = 'none'
+        cover.style.display = 'block';
+
+        mini_login.style.left = (document.body.clientWidth - mini_login.clientWidth) / 2 + "px";
+        mini_login.style.top = (document.body.clientHeight - mini_login.clientHeight) / 3 + "px";
+      }
+
+      function closeLogin() {
+        mini_login.style.display = 'none';
+        cover.style.display = 'none';
+      }
+
+      function showSignup() {
+        mini_login.style.display = 'none';
+        mini_signup.style.display = 'block';
+        mini_findpass.style.display = 'none'
+        cover.style.display = 'block';
+
+        mini_signup.style.left = (document.body.clientWidth - mini_signup.clientWidth) / 2 + "px";
+        mini_signup.style.top = (document.body.clientHeight - mini_signup.clientHeight) / 4 + "px";
+      }
+
+
+      function closeSignup() {
+        mini_signup.style.display = 'none';
+        cover.style.display = 'none';
+      }
+
+      function showFindpass() {
+        mini_findpass.style.display = 'block'
+        mini_login.style.display = 'none';
+        mini_signup.style.display = 'none';
+        cover.style.display = 'block';
+
+        mini_findpass.style.left = (document.body.clientWidth - mini_findpass.clientWidth) / 2 + "px";
+        mini_findpass.style.top = (document.body.clientHeight - mini_findpass.clientHeight) / 3 + "px";
+      }
+
+      function closeFindpass() {
+        mini_findpass.style.display = 'none';
+        cover.style.display = 'none';
+      }
+
+      function isEmail(str) {
+        var myReg = /^[-_A-Za-z0-9]+@([_A-Za-z0-9]+\.)+[A-Za-z0-9]{2,3}$/;
+        if (myReg.test(str)) {
+          return true;
+        } else {
+          return false;
+        }
+
+      }
+
+      signin = function () {
+        var right = true;
+        document.getElementsByClassName('usrerrempty')[0].style.visibility = 'hidden';
+        document.getElementsByClassName('usrerrformat')[0].style.visibility = 'hidden';
+        document.getElementsByClassName('paserr')[0].style.visibility = 'hidden';
+        var username = document.getElementById('username').value;
+        var pass = document.getElementById('password');
+        if (username == '') {
+          document.getElementsByClassName('usrerrempty')[0].style.visibility = 'visible';
+          right = false;
+        } else if (isEmail(username) == false) {
+          document.getElementsByClassName('usrerrformat')[0].style.visibility = 'visible';
+          right = false;
+        }
+
+        if (pass.value == '') {
+          document.getElementsByClassName('paserr')[0].style.visibility = 'visible';
+          right = false;
+        }
+
+        if (right) {
+          var fields = $('#login_form').serializeArray();
+          var obj = {}; //声明一个对象
+          $.each(fields, function (index, field) {
+            obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
+          })
+          console.log(obj);
+
+          $.ajax({
+            type: "post",
+            url: "http://148.70.200.102:11250/user/login",
+            async: true,
+            contentType: 'application/json',
+            dataType: 'JSON',
+            xhrFields: {
+              withCredentials: false
+            },
+            crossDomain: true,
+            data: JSON.stringify(obj), //将对象转为json字符串
+            success: function (data) {
+              console.log(data);
+              if (data.tag == 'success') {
+                alert('登陆成功')
+                closeLogin()
+              } else if (data.tag == "account doesn't exist") {
+                alert('账户不存在!')
+              } else if (data.tag == 'password error') {
+                alert('密码错误!')
+              }
+              // window.location.href="localhost"
+            }
+          });
+
+        }
+      }
+
+      var checkcode = '00000';
+      var findpasscode = '00000';
+      var clock = '';
+      var nums = 10;
+      var clock1 = '';
+      var nums1 = 10;
+      var btn = document.getElementsByClassName('orange')[0];
+      var btn1 = document.getElementsByClassName('orange')[1];
+      sendCode = function () {
+        var user = document.getElementById('username_signup').value;
+        var data = {
+          data: JSON.stringify({
+            "value": user
+          })
+        }
+
+        $.ajax({
+          type: 'POST',
+          url: "/sendemailcode",
+          data: data,
+          success: function (ans) {
+            console.log(ans)
+            checkcode = ans;
+          }
+        });
+
+
+        btn.disabled = true;
+        btn.value = nums + 's to wait';
+        clock = setInterval(doLoop, 1000);
+      }
+
+      sendCode1 = function () {
+        var user = document.getElementById('username_findpass').value;
+        var data = {
+          data: JSON.stringify({
+            "value": user
+          })
+        }
+
+        $.ajax({
+          type: 'POST',
+          url: "/sendemailcode",
+          data: data,
+          success: function (ans) {
+            console.log(ans)
+            findpasscode = ans;
+          }
+        });
+
+
+        btn1.disabled = true;
+        btn1.value = nums + 's to wait';
+        clock1 = setInterval(doLoop1, 1000);
+      }
+
+
+      function doLoop() {
+        nums--;
+        if (nums > 0) {
+          btn.value = nums + 's to wait';
+        } else {
+          clearInterval(clock);
+          btn.disabled = false;
+          btn.value = '点击发送验证码';
+          nums = 10;
+        }
+      }
+
+      function doLoop1() {
+        nums1--;
+        if (nums1 > 0) {
+          btn1.value = nums1 + 's to wait';
+        } else {
+          clearInterval(clock1);
+          btn1.disabled = false;
+          btn1.value = '点击发送验证码';
+          nums1 = 10;
+        }
+      }
+
+
+      signup = function () {
+        var correct = true;
+        document.getElementsByClassName('usrerrempty')[1].style.visibility = 'hidden';
+        document.getElementsByClassName('usrerrformat')[1].style.visibility = 'hidden';
+        document.getElementsByClassName('paserr')[1].style.visibility = 'hidden';
+        document.getElementsByClassName('paserr')[2].style.visibility = 'hidden';
+        document.getElementsByClassName('repaserr')[0].style.visibility = 'hidden';
+        document.getElementsByClassName('ecode')[0].style.visibility = 'hidden';
+
+
+        var username_signup = document.getElementById('username_signup').value;
+        var papassword_signup = document.getElementById('password_signup');
+        var repass = document.getElementById('repassword_signup');
+        var vccode = document.getElementById('VerificationCode');
+        if (username_signup == '') {
+          document.getElementsByClassName('usrerrempty')[1].style.visibility = 'visible';
+          correct = false;
+        } else if (isEmail(username_signup) == false) {
+          document.getElementsByClassName('usrerrformat')[1].style.visibility = 'visible';
+          correct = false;
+        }
+
+        if (papassword_signup.value == '') {
+          document.getElementsByClassName('paserr')[1].style.visibility = 'visible';
+          correct = false;
+        } else if (papassword_signup.value.length < 6 || papassword_signup.value.length > 12) {
+          document.getElementsByClassName('paserr')[2].style.visibility = 'visible';
+          correct = false;
+        }
+
+        if (repass.value != papassword_signup.value) {
+          document.getElementsByClassName('repaserr')[0].style.visibility = 'visible';
+          correct = false;
+        }
+
+        if (vccode.value == '') {
+          document.getElementsByClassName('ecode')[0].style.visibility = 'visible';
+          correct = false;
+        } else if (vccode.value != checkcode) {
+          alert('验证码不对！')
+          correct = false;
+        }
+
+        if (correct) {
+          var fields = $('#signup_form').serializeArray();
+          var obj = {}; //声明一个对象
+          $.each(fields, function (index, field) {
+              // if (field.name!='')
+            obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
+          })
+
+          console.log(obj);
+
+          $.ajax({
+            type: "post",
+            url: "http://148.70.200.102:11250/user/register",
+            async: true,
+            contentType: 'application/json',
+            dataType: 'JSON',
+            xhrFields: {
+              withCredentials: false
+            },
+            crossDomain: true,
+            data: JSON.stringify(obj), //将对象转为json字符串
+            success: function (data) {
+              console.log(data);
+              if (data.tag == 'success') {
+                alert('注册成功！')
+                showLogin();
+              } else if (data.tag == 'repeat')
+                alert('邮箱已被注册!')
+              document.getElementById('signup_form').reset()
+              // window.location.href="localhost"
+            }
+          });
+
+
+        }
+      }
+
+      findbackpass = function () {
+        var correct = true;
+        document.getElementsByClassName('usrerrempty')[2].style.visibility = 'hidden';
+        document.getElementsByClassName('usrerrformat')[2].style.visibility = 'hidden';
+        document.getElementsByClassName('paserr')[3].style.visibility = 'hidden';
+        document.getElementsByClassName('paserr')[4].style.visibility = 'hidden';
+        document.getElementsByClassName('repaserr')[1].style.visibility = 'hidden';
+        document.getElementsByClassName('ecode')[1].style.visibility = 'hidden';
+
+
+        var username_signup = document.getElementById('username_findpass').value;
+        var papassword_signup = document.getElementById('password_findback');
+        var repass = document.getElementById('repassword_findback');
+        var vccode = document.getElementById('VerificationCode1');
+
+        if (username_signup == '') {
+          document.getElementsByClassName('usrerrempty')[2].style.visibility = 'visible';
+          correct = false;
+        } else if (isEmail(username_signup) == false) {
+          document.getElementsByClassName('usrerrformat')[2].style.visibility = 'visible';
+          correct = false;
+        }
+
+        if (papassword_signup.value == '') {
+          document.getElementsByClassName('paserr')[3].style.visibility = 'visible';
+          correct = false;
+        } else if (papassword_signup.value.length < 6 || papassword_signup.value.length > 12) {
+          document.getElementsByClassName('paserr')[4].style.visibility = 'visible';
+          correct = false;
+        }
+
+        if (repass.value != papassword_signup.value) {
+          document.getElementsByClassName('repaserr')[1].style.visibility = 'visible';
+          correct = false;
+        }
+
+        if (vccode.value == '') {
+          document.getElementsByClassName('ecode')[1].style.visibility = 'visible';
+          correct = false;
+        } else if (vccode.value != findpasscode) {
+          alert('验证码不对！')
+          correct = false;
+        }
+
+        if (correct) {
+          var fields = $('#findpass_form').serializeArray();
+          var obj = {}; //声明一个对象
+          $.each(fields, function (index, field) {
+            obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
+          })
+
+          console.log(obj);
+          $.ajax({
+            type: "post",
+            url: "http://148.70.200.102:11250/user/exchangepasswd",
+            async: true,
+            contentType: 'application/json',
+            dataType: 'JSON',
+            xhrFields: {
+              withCredentials: false
+            },
+            crossDomain: true,
+            data: JSON.stringify(obj), //将对象转为json字符串
+            success: function (data) {
+              console.log(data);
+              if (data.tag == "account doesn't exist") {
+                alert('该邮箱未被注册！')
+                document.getElementById('findpass_form').reset()
+              } else if (data.tag == 'success') {
+                alert('重置密码成功!')
+                showLogin()
+              }
+
+
+
+            }
+          });
+
+        }
+      }
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        }
+
+{#****************************************************************************向服务器传输关键字并获取返回数据#}
+        function search_req(words) {
+            $.ajax({
+                type: "post",
+                url: "http://148.70.200.102:11250/search",
+                async: true,
+                contentType: 'application/json',
+                dataType: 'JSON',
+                xhrFields: {withCredentials: false},
+                crossDomain: true,
+                data: JSON.stringify(words), //将对象转为json字符串
+                success: function (data) {
+                  console.log(data);
+                  if (data.tag == "success") {
+                    alert('查询成功');
+                  }
+                  else {
+                      alert('无匹配数据');
+                  }
+
+                }
+            });
+        }
+
+        function GetRequest() {
+            var url = location.search; //获取url中"?"符后的字串
+            var theRequest = new Object();
+            if (url.indexOf("?") != -1) {
+                var str = url.substr(1);
+                strs = str.split("&");
+                for (var i = 0; i < strs.length; i++) {
+                    theRequest[strs[i].split("=")[0]] = decodeURIComponent(strs[i].split("=")[1]);
+                }
+            }
+            return theRequest;
+        }
+</script>
+
+<script type="text/javascript">
+       function searchToggle(obj, evt){
+                var container = $(obj).closest('.search-wrapper');
+
+                if(!container.hasClass('active')){
+                      container.addClass('active');
+                      evt.preventDefault();
+                }
+                else if(container.hasClass('active') && $(obj).closest('.input-holder').length == 0){
+                      container.removeClass('active');
+                      // clear input
+                      container.find('.search-input').val('');
+                      // clear and hide result container when we press close
+                      container.find('.result-container').fadeOut(100, function(){$(this).empty();});
+                }
+            }
+
+       function submitFn(obj, evt){
+                value = $(obj).find('.search-input').val().trim();
+                if(!value.length){
+                    alert("关键词不能为空!");
+                }
+                else{
+                    var link="details"+"?keyword="+value;
+                    window.location.href=link;
+                    {#search_req(value);#}
+                }
+                evt.preventDefault();
+            }
+</script>
+</head>
+
+<body>
+<style>
+      .search_table{
+          position: absolute;
+          left: 50px;
+          top: 120px;
+          z-index: 0;
+      }
+
+      .recommend_table{
+          position: absolute;
+          right: 50px;
+          top: 120px;
+          z-index: 0;
+      }
+
+    .line{
+        {#width: 800px;#}
+        height: 1px;
+        background: gray;
+        margin-top: 5px;
+    }
+    .line1{
+                {#width: 800px;#}
+    }
+    .line2{
+        {#width: 200px;#}
+    }
+
+  </style>
+  <div class="search_table">
+      <h2>为您找到的证券:</h2>
+      <div class="line line1"></div>
+      <table id="search_table"  lay-filter="test"></table>
+  </div>
+
+    <div class="recommend_table" >
+      <h2>可能会感兴趣的证券:</h2>
+      <div class="line line2"></div>
+        <table class="layui-table" lay-skin="line" lay-even>
+          <colgroup>
+            <col width="100">
+            <col width="100">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>证券代码</th>
+              <th>公司简称</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>101001</td>
+              <td>啊打发</td>
+            </tr>
+            <tr>
+              <td>101040</td>
+              <td>请问阿达</td>
+            </tr>
+          <tr>
+              <td>101040</td>
+              <td>请问阿达</td>
+            </tr>
+          <tr>
+              <td>101040</td>
+              <td>请问阿达</td>
+            </tr>
+          </tbody>
+        </table>
+  </div>
+
+  <script>
+layui.use('table', function(){
+  var table = layui.table;
+
+  //第一个实例
+  table.render({
+    elem: '#search_table',
+    height: 500,
+    width:800,
+    url: '/get_table', //数据接口
+    page: {
+        layout:['limit','count','prev','page','next','skip'],
+        limit:10,
+        limits:[5,10,15],
+        groups:2,
+        first:"首页",
+        last:"尾页"
+    },
+    cols: [[ //表头
+      {field: 'id', title: '证券代码', sort: true, fixed: 'left',width:120},
+      {field: 'shortname', title: '公司简称'},
+      {field: 'reg_place', title: '注册地'},
+      {field: 'market_time', title: '上市时间', sort: true},
+      {field: 'executive', title: '公司高管'}
+    ]],
+      text: {
+        none: '暂无匹配数据'
+      }
+
+  });
+
+});
+</script>
+
+  <nav>
+    <div class="menubar">
+      <a href="index1" class="home"> </a>
+      <div>
+          <form onSubmit="submitFn(this, event);">
+                <div class="search-wrapper active">
+                    <div class="input-holder">
+                        <input type="text" class="search-input" placeholder="请输入关键词（代码/高管/关键字..）" />
+                        <button class="search-icon" onClick="searchToggle(this, event);"><span></span></button>
+                    </div>
+                    <span class="close" onClick="searchToggle(this, event);"></span>
+                    <div class="result-container">
+
+                    </div>
+                </div>
+          </form>
+
+
+      </div>
+      <div class="icons">
+        <div class="secondary-icons">
+{#          <i class="icon-second"><img src="../static/img/icon-198.svg"></i>#}
+          <i class="icon-second" id="btn_showlogin"><img src="../static/img/icon-171.svg"></i>
+        </div>
+
+        <i class="icon-menu"><span></span></i>
+      </div>
+    </div>
+    <ul class="menu">
+      <li class="menu-link"><a href="#0" class="text-item">About Us</a></li>
+      <li class="menu-link sub">
+        <a href="#0" class="text-item">Our Members<span class="icon"></span></a>
+        <ul class="submenu">
+          <li class="sub-item"><a href="#0">Mr.Yang</a></li>
+          <li class="sub-item"><a href="#0">Mr.He</a></li>
+          <li class="sub-item"><a href="#0">Ms.Liu</a></li>
+          <li class="sub-item"><a href="#0">Ms.Guo</a></li>
+        </ul>
+      </li>
+      <li class="menu-link sub">
+        <a href="#0" class="text-item">Our Services<span class="icon"></span></a>
+        <ul class="submenu">
+          <li class="sub-item"><a href="#0">Print Design</a></li>
+          <li class="sub-item"><a href="#0">Web Design</a></li>
+          <li class="sub-item"><a href="#0">Mobile App Development</a></li>
+          <li class="sub-item"><a href="#0">UI Design</a></li>
+        </ul>
+      </li>
+      <li class="menu-link sub">
+          <a href="#0" class="text-item">联系我们<span class="icon"></span></a>
+          <ul class="submenu">
+              <li class="sub-item"><a href="http://wpa.qq.com/msgrd?v=3&amp;uin=841219366&amp;site=qq&amp;menu=yes" target="_blank" title="QQ">Mr.Yang</a></li>
+              <li class="sub-item"><a href="http://wpa.qq.com/msgrd?v=3&amp;uin=591468224&amp;site=qq&amp;menu=yes" target="_blank" title="QQ">Mr.He</a></li>
+
+          </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- 弹出登录窗口 -->
+  <div class="mini_login">
+    <form class="form-horizontal" id="login_form" method="POST" action="#">
+      <p id="close_minilogin">X</p>
+      <div class="heading">Welcome</div>
+      <div class="form-group">
+        <i id="uimg"></i>
+        <input name="username" id="username" type="text" class="form-control" placeholder="E-mail" />
+        <p class="usrerrformat err">Please enter the correct email format!</p>
+        <p class="usrerrempty err">Username cannot be empty!</p>
+      </div>
+      <div class="form-group">
+        <i id="pimg"></i>
+        <input name="password" id="password" type="password" class="form-control" placeholder="Password" />
+        <p class="paserr err">Password cannot be empty!</p>
+      </div>
+      <div class="form-group">
+        <button type="button" onclick="signin()" class="btn btn-default"><i>Sign in</i></button>
+        <span>Don't have an account? <a href="#" class="create_account" id="showSignup">Sign up</a></span><br>
+        <span>Forget your password? <a href="#" class="create_account" id="showFindpass">Find back your
+            password</a></span>
+      </div>
+    </form>
+  </div>
+  <!-- 弹出注册窗口 -->
+  <div class="mini_signup">
+    <form class="form-horizontal" id="signup_form" method="POST" action="#">
+      <p id="close_minisignup">X</p>
+      <div class="heading">Welcome</div>
+      <div class="form-group">
+        <i id="uimg"></i>
+        <input name="username" id="username_signup" type="text" class="form-control" placeholder="E-mail" />
+        <p class="usrerrformat err">Please enter the correct email format!</p>
+        <p class="usrerrempty err">Username cannot be empty!</p>
+      </div>
+      <div class="form-group">
+        <i id="pimg"></i>
+        <input name="password" id="password_signup" type="password" class="form-control" placeholder="Password" />
+        <p class="paserr err">Password cannot be empty!</p>
+        <p class="paserr err">Password must be between 6 and 12 digits!</p>
+      </div>
+      <div class="form-group">
+        <i id="pimg"></i>
+        <input name="password" id="repassword_signup" type="password" class="form-control"
+          placeholder="Confirm password" />
+        <p class="repaserr err">Passwords are inconsistent!</p>
+      </div>
+      <div class="form-group">
+        <i id="eimg"></i>
+        <input name="VerificationCode" id="VerificationCode" type="text" class="form-control VC"
+          placeholder="Enter Code" />
+        <input type="button" value="SendCode" class="orange" onclick="sendCode()" />
+        <p class="ecode err">Verification Code cannot be empty!</p>
+      </div>
+
+      <div class="form-group">
+        <button type="button" class="btn btn-default" onclick="signup()"><i>Sign up</i></button>
+        <span>Already have an account? <a href="#" class="create_account" id="showSignin1">Sign in</a></span>
+      </div>
+    </form>
+  </div>
+  <!-- 弹出find password窗口 -->
+  <div class="mini_findpass">
+    <form class="form-horizontal" id="findpass_form" method="POST" action="#">
+      <p id="close_findpass">X</p>
+      <div class="heading">Welcome</div>
+      <div class="form-group">
+        <i id="uimg"></i>
+        <input name="username" id="username_findpass" type="text" class="form-control" placeholder="E-mail" />
+        <p class="usrerrformat err">Please enter the correct email format!</p>
+        <p class="usrerrempty err">Username cannot be empty!</p>
+      </div>
+
+      <div class="form-group">
+        <i id="eimg"></i>
+        <input name="VerificationCode" id="VerificationCode1" type="text" class="form-control VC"
+          placeholder="Enter Code" />
+        <input type="button" value="SendCode" class="orange" onclick="sendCode1()" />
+        <p class="ecode err">Verification Code cannot be empty!</p>
+      </div>
+
+      <div class="form-group">
+        <i id="pimg"></i>
+        <input name="password" id="password_findback" type="password" class="form-control" placeholder="Password" />
+        <p class="paserr err">Password cannot be empty!</p>
+        <p class="paserr err">Password must be between 6 and 12 digits!</p>
+      </div>
+      <div class="form-group">
+        <i id="pimg"></i>
+        <input name="password" id="repassword_findback" type="password" class="form-control"
+          placeholder="Confirm password" />
+        <p class="repaserr err">Passwords are inconsistent!</p>
+      </div>
+
+      <div class="form-group">
+        <button type="button" class="btn btn-default" onclick="findbackpass()"><i>Submit</i></button>
+        <span>Already have an account? <a href="#" class="create_account" id="showSignin2">Sign in</a></span>
+      </div>
+    </form>
+  </div>
+  <div class="cover"></div>
+
+
+
+<script src="../static/js/script.js"></script>
+</body>
+
+</html>

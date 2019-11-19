@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>table模块快速使用</title>
+  <link rel="stylesheet" href="../static/layui/css/layui.css" media="all">
+  <script src="../static/layui/layui.js"></script>
+</head>
+<body>
+
+<table id="demo" lay-filter="test" lay-skin='line'  class="layui-table"></table>
+
+
+<script>
+layui.use('table', function(){
+  var table = layui.table;
+
+  //第一个实例
+  table.render({
+    elem: '#demo',
+    height: 500,
+    width:800,
+    url: '/get_table', //数据接口
+    {#,page: true //开启分页#}
+    cols: [[ //表头
+      {field: 'id', title: '证券代码', sort: true, fixed: 'left',width:120},
+      {field: 'shortname', title: '公司简称'},
+      {field: 'reg_place', title: '注册地'},
+      {field: 'market_time', title: '上市时间', sort: true},
+      {field: 'executive', title: '公司高管'}
+    ]],
+      text: {
+        none: '暂无匹配数据'
+      }
+
+  });
+
+});
+</script>
+</body>
+</html>
