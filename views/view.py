@@ -43,6 +43,10 @@ def get_interested_table():
         data_item={"code":0,"msg":"","count":5,"data":[{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"}]}
         return json.dumps(data_item)
 
+@analysis.route('/getrandom', methods=["GET"])
+def getrandom():
+        return str(random.random())
+
 
 @analysis.route('/sendemailcode',methods=['POST'])
 def sendemailcode():
