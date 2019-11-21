@@ -1,26 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="92af05c6-57ed-4a35-a968-b489bf464cad" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/flickerplate.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery-1.11.0.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery-2.1.1.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery-3.3.1.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery-finger-v0.1.0.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery-v1.10.2.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/modernizr-custom-v2.7.1.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/move++.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/rotate.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/script.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/login.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/sendemail.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/company.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/company.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/details.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/details.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index1.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index1.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/login.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/view.py" beforeDir="false" afterPath="$PROJECT_DIR$/views/view.py" afterDir="false" />
-    </list>
+    <list default="true" id="92af05c6-57ed-4a35-a968-b489bf464cad" name="Default Changelist" comment="11.21 完成用户登录管理功能，还差数据和用户主页面" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -161,8 +142,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/static/script/login.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="304">
-              <caret line="16" column="12" selection-start-line="16" selection-start-column="12" selection-end-line="16" selection-end-column="12" />
+            <state relative-caret-position="285">
+              <caret line="15" column="30" lean-forward="true" selection-start-line="15" selection-start-column="30" selection-end-line="15" selection-end-column="30" />
             </state>
           </provider>
         </entry>
@@ -271,9 +252,9 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="951" />
-    <option name="width" value="978" />
-    <option name="height" value="1039" />
+    <option name="x" value="950" />
+    <option name="width" value="979" />
+    <option name="height" value="1040" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -477,7 +458,7 @@
       <workItem from="1574227720663" duration="4822000" />
       <workItem from="1574259537329" duration="3576000" />
       <workItem from="1574303020366" duration="5354000" />
-      <workItem from="1574311563160" duration="11167000" />
+      <workItem from="1574311563160" duration="11519000" />
     </task>
     <task id="LOCAL-00001" summary="11.19">
       <created>1574175532216</created>
@@ -486,11 +467,18 @@
       <option name="project" value="LOCAL" />
       <updated>1574175532216</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="11.21 完成用户登录管理功能，还差数据和用户主页面">
+      <created>1574328187656</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1574328187657</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="138733000" />
+    <option name="totallyTimeSpent" value="139085000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
@@ -501,7 +489,7 @@
       <window_info id="Favorites" order="2" sideWeight="0.50600344" side_tool="true" weight="0.1461126" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.14516129" />
+      <window_info anchor="bottom" id="Run" order="2" weight="0.14516129" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.39910978" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -547,7 +535,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="11.19" />
-    <option name="LAST_COMMIT_MESSAGE" value="11.19" />
+    <MESSAGE value="11.21 完成用户登录管理功能，还差数据和用户主页面" />
+    <option name="LAST_COMMIT_MESSAGE" value="11.21 完成用户登录管理功能，还差数据和用户主页面" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/app.py" />
@@ -746,8 +735,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/static/script/login.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="16" column="12" selection-start-line="16" selection-start-column="12" selection-end-line="16" selection-end-column="12" />
+        <state relative-caret-position="285">
+          <caret line="15" column="30" lean-forward="true" selection-start-line="15" selection-start-column="30" selection-end-line="15" selection-end-column="30" />
         </state>
       </provider>
     </entry>
