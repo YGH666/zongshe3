@@ -3,10 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script src="../static/js/jquery-3.3.1.min.js"></script>
-    <script src="../static/js/move++.js"></script>
+    <script src="../static/script/jquery-3.3.1.min.js"></script>
+    <script src="../static/script/move++.js"></script>
+
     <link rel="stylesheet" href="../static/layui/css/layui.css" media="all">
     <script src="../static/layui/layui.js"></script>
+    <script src="../static/script/cookie.js"></script>
     <link rel="stylesheet" href="../static/styles/login.css">
     <link rel="stylesheet" href="../static/styles/index1.css">
     <link rel="stylesheet" type="text/css" href="../static/styles/search-form.css" />
@@ -19,385 +21,8 @@
     <script src="https://code.highcharts.com.cn/highcharts/modules/exporting.js"></script>
     <script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
 {#    <script src="https://code.highcharts.com.cn/highcharts/themes/dark-unica.js"></script>#}
+
     <script>
-    window.onload=function(){
-
-    document.getElementById('showSignin2').onclick= document.getElementById('btn_showlogin').onclick=document.getElementById('showSignin1').onclick=showLogin;
-    document.getElementById('close_minilogin').onclick=closeLogin;
-    document.getElementById('showSignup').onclick=showSignup;
-    document.getElementById('close_minisignup').onclick=closeSignup;
-    document.getElementById('showFindpass').onclick=showFindpass;
-    document.getElementById('close_findpass').onclick=closeFindpass;
-
-
-    var mini_login=document.getElementsByClassName('mini_login')[0];
-    var cover=document.getElementsByClassName('cover')[0];
-    var mini_signup=document.getElementsByClassName('mini_signup')[0];
-    var mini_findpass=document.getElementsByClassName('mini_findpass')[0];
-
-    function showLogin(){
-        mini_signup.style.display='none';
-        mini_login.style.display='block';
-        mini_findpass.style.display='none'
-        cover.style.display='block';
-
-        mini_login.style.left=(document.body.clientWidth-mini_login.clientWidth)/2+"px";
-        mini_login.style.top=(document.body.clientHeight-mini_login.clientHeight)/3+"px";
-    }
-
-    function closeLogin(){
-        mini_login.style.display='none';
-        cover.style.display='none';
-    }
-
-    function showSignup(){
-        mini_login.style.display='none';
-        mini_signup.style.display='block';
-        mini_findpass.style.display='none'
-        cover.style.display='block';
-
-        mini_signup.style.left=(document.body.clientWidth-mini_signup.clientWidth)/2+"px";
-        mini_signup.style.top=(document.body.clientHeight-mini_signup.clientHeight)/4+"px";
-    }
-
-
-    function closeSignup(){
-        mini_signup.style.display='none';
-        cover.style.display='none';
-    }
-
-    function showFindpass() {
-        mini_findpass.style.display='block'
-        mini_login.style.display='none';
-        mini_signup.style.display='none';
-        cover.style.display='block';
-
-        mini_findpass.style.left=(document.body.clientWidth-mini_findpass.clientWidth)/2+"px";
-        mini_findpass.style.top=(document.body.clientHeight-mini_findpass.clientHeight)/3+"px";
-    }
-
-    function closeFindpass() {
-        mini_findpass.style.display='none';
-        cover.style.display='none';
-    }
-
-    function isEmail( str ){
-        var myReg = /^[-_A-Za-z0-9]+@([_A-Za-z0-9]+\.)+[A-Za-z0-9]{2,3}$/;
-        if(myReg.test(str)){
-            return true;
-        }
-        else{
-            return false;
-        }
-
-}
-
-    signin=function(){
-        var right=true;
-        document.getElementsByClassName('usrerrempty')[0].style.visibility='hidden';
-        document.getElementsByClassName('usrerrformat')[0].style.visibility='hidden';
-        document.getElementsByClassName('paserr')[0].style.visibility='hidden';
-        var username=document.getElementById('username').value;
-        var pass=document.getElementById('password');
-        if(username==''){
-            document.getElementsByClassName('usrerrempty')[0].style.visibility='visible';
-            right=false;
-        }
-        else if(isEmail(username)==false){
-            document.getElementsByClassName('usrerrformat')[0].style.visibility='visible';
-            right=false;
-        }
-
-        if(pass.value==''){
-            document.getElementsByClassName('paserr')[0].style.visibility='visible';
-            right=false;
-        }
-
-        if(right){
-            var fields = $('#login_form').serializeArray();
-            var obj = {}; //声明一个对象
-            $.each(fields, function(index, field) {
-                obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
-            })
-            console.log(obj);
-
-             $.ajax({
-                     type: "post",
-                     url: "http://148.70.200.102:6666/user/login",
-                     async: true,
-                     contentType: 'application/json',
-                     dataType: 'JSON',
-                     xhrFields: {withCredentials: false},
-                     crossDomain: true,
-                     data: JSON.stringify(obj),//将对象转为json字符串
-                     success: function(data) {
-                         console.log(data);
-                         if(data.tag=='success'){
-                             alert('登陆成功')
-                             closeLogin()
-                         }
-                         else if(data.tag=="account doesn't exist")
-                         {
-                             alert('账户不存在!')
-                         }
-                         else if (data.tag=='password error'){
-                             alert('密码错误!')
-                         }
-                         // window.location.href="localhost"
-                     }
-                 });
-
-        }
-    }
-
-    var checkcode='00000';
-    var findpasscode='00000';
-    var clock = '';
-    var nums = 10;
-    var clock1 = '';
-    var nums1 = 10;
-    var btn=document.getElementsByClassName('orange')[0];
-    var btn1=document.getElementsByClassName('orange')[1];
-    sendCode=function ()
-    {
-        var user=document.getElementById('username_signup').value;
-        var data = {
-        data: JSON.stringify({"value":user})}
-
-        $.ajax({
-        type: 'POST',
-        url: "/sendemailcode",
-        data:data,
-        success:function (ans) {
-                console.log(ans)
-                checkcode=ans;
-        }
-        });
-
-
-        btn.disabled = true;
-        btn.value = nums+'s to wait';
-        clock = setInterval(doLoop, 1000);
-    }
-
-    sendCode1=function ()
-    {
-        var user=document.getElementById('username_findpass').value;
-        var data = {
-        data: JSON.stringify({"value":user})}
-
-        $.ajax({
-        type: 'POST',
-        url: "/sendemailcode",
-        data:data,
-        success:function (ans) {
-                console.log(ans)
-                findpasscode=ans;
-        }
-        });
-
-
-        btn1.disabled = true;
-        btn1.value = nums+'s to wait';
-        clock1 = setInterval(doLoop1, 1000);
-    }
-
-
-    function doLoop()
-    {
-    nums--;
-    if(nums > 0){
-    btn.value = nums+'s to wait';
-    }else{
-    clearInterval(clock);
-    btn.disabled = false;
-    btn.value = '点击发送验证码';
-    nums = 10;
-    }
-    }
-
-    function doLoop1()
-    {
-    nums1--;
-    if(nums1 > 0){
-    btn1.value = nums1+'s to wait';
-    }else{
-    clearInterval(clock1);
-    btn1.disabled = false;
-    btn1.value = '点击发送验证码';
-    nums1 = 10;
-    }
-    }
-
-
-    signup=function(){
-        var correct=true;
-        document.getElementsByClassName('usrerrempty')[1].style.visibility='hidden';
-        document.getElementsByClassName('usrerrformat')[1].style.visibility='hidden';
-        document.getElementsByClassName('paserr')[1].style.visibility='hidden';
-        document.getElementsByClassName('paserr')[2].style.visibility='hidden';
-        document.getElementsByClassName('repaserr')[0].style.visibility='hidden';
-        document.getElementsByClassName('ecode')[0].style.visibility='hidden';
-
-
-        var username_signup=document.getElementById('username_signup').value;
-        var papassword_signup=document.getElementById('password_signup');
-        var repass=document.getElementById('repassword_signup');
-        var vccode=document.getElementById('VerificationCode');
-        if(username_signup==''){
-            document.getElementsByClassName('usrerrempty')[1].style.visibility='visible';
-            correct=false;
-        }
-        else if(isEmail(username_signup)==false){
-            document.getElementsByClassName('usrerrformat')[1].style.visibility='visible';
-            correct=false;
-        }
-
-        if(papassword_signup.value==''){
-            document.getElementsByClassName('paserr')[1].style.visibility='visible';
-            correct=false;
-        }
-
-        else  if(papassword_signup.value.length<6||papassword_signup.value.length>12){
-            document.getElementsByClassName('paserr')[2].style.visibility='visible';
-            correct=false;
-        }
-
-        if(repass.value!=papassword_signup.value){
-            document.getElementsByClassName('repaserr')[0].style.visibility='visible';
-            correct=false;
-        }
-
-        if(vccode.value==''){
-            document.getElementsByClassName('ecode')[0].style.visibility='visible';
-            correct=false;
-        }
-        else if(vccode.value!=checkcode){
-            alert('验证码不对！')
-            correct=false;
-        }
-
-        if(correct){
-            var fields = $('#signup_form').serializeArray();
-            var obj = {}; //声明一个对象
-            $.each(fields, function(index, field) {
-                obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
-            })
-
-            console.log(obj);
-
-            $.ajax({
-                     type: "post",
-                     url: "http://148.70.200.102:6666/user/register",
-                     async: true,
-                     contentType: 'application/json',
-                     dataType: 'JSON',
-                     xhrFields: {withCredentials: false},
-                     crossDomain: true,
-                     data: JSON.stringify(obj),//将对象转为json字符串
-                     success: function(data) {
-                         console.log(data);
-                         if(data.tag=='success'){
-                             alert('注册成功！')
-                             showLogin();
-                         }
-
-                         else if(data.tag=='repeat')
-                             alert('邮箱已被注册!')
-                             document.getElementById('signup_form').reset()
-                         // window.location.href="localhost"
-                     }
-                 });
-
-
-        }
-    }
-
-    findbackpass=function () {
-        var correct=true;
-        document.getElementsByClassName('usrerrempty')[2].style.visibility='hidden';
-        document.getElementsByClassName('usrerrformat')[2].style.visibility='hidden';
-        document.getElementsByClassName('paserr')[3].style.visibility='hidden';
-        document.getElementsByClassName('paserr')[4].style.visibility='hidden';
-        document.getElementsByClassName('repaserr')[1].style.visibility='hidden';
-        document.getElementsByClassName('ecode')[1].style.visibility='hidden';
-
-
-        var username_signup=document.getElementById('username_findpass').value;
-        var papassword_signup=document.getElementById('password_findback');
-        var repass=document.getElementById('repassword_findback');
-        var vccode=document.getElementById('VerificationCode1');
-
-        if(username_signup==''){
-            document.getElementsByClassName('usrerrempty')[2].style.visibility='visible';
-            correct=false;
-        }
-        else if(isEmail(username_signup)==false){
-            document.getElementsByClassName('usrerrformat')[2].style.visibility='visible';
-            correct=false;
-        }
-
-         if(papassword_signup.value==''){
-            document.getElementsByClassName('paserr')[3].style.visibility='visible';
-            correct=false;
-        }
-
-        else  if(papassword_signup.value.length<6||papassword_signup.value.length>12){
-            document.getElementsByClassName('paserr')[4].style.visibility='visible';
-            correct=false;
-        }
-
-        if(repass.value!=papassword_signup.value){
-            document.getElementsByClassName('repaserr')[1].style.visibility='visible';
-            correct=false;
-        }
-
-        if(vccode.value==''){
-            document.getElementsByClassName('ecode')[1].style.visibility='visible';
-            correct=false;
-        }
-        else if(vccode.value!=findpasscode){
-            alert('验证码不对！')
-            correct=false;
-        }
-
-        if (correct){
-            var fields = $('#findpass_form').serializeArray();
-            var obj = {}; //声明一个对象
-            $.each(fields, function(index, field) {
-                obj[field.name] = field.value; //通过变量，将属性值，属性一起放到对象中
-            })
-
-            console.log(obj);
-            $.ajax({
-                     type: "post",
-                     url: "http://148.70.200.102:6666/user/exchangepasswd",
-                     async: true,
-                     contentType: 'application/json',
-                     dataType: 'JSON',
-                     xhrFields: {withCredentials: false},
-                     crossDomain: true,
-                     data: JSON.stringify(obj),//将对象转为json字符串
-                     success: function(data) {
-                         console.log(data);
-                         if(data.tag=="account doesn't exist"){
-                             alert('该邮箱未被注册！')
-                             document.getElementById('findpass_form').reset()
-                         }
-                         else if(data.tag=='success'){
-                             alert('重置密码成功!')
-                             showLogin()
-                         }
-
-
-
-                     }
-                 });
-
-        }
-    }
-}
-
        function searchToggle(obj, evt){
                 var container = $(obj).closest('.search-wrapper');
 
@@ -437,9 +62,18 @@
         }
 
         .content-item{
-            width:1200px;height:580px;margin: auto;
+            width:1300px;height:580px;margin: auto;
             position: relative;
         }
+
+         .content-item-data{
+             height: 50px;
+             line-height: 50px;
+             text-align: left;
+         }
+
+
+
 </style>
 </head>
 <body>
@@ -453,6 +87,7 @@
       });
     });
 </script>
+
 <div class="layui-tab layui-tab-brief company_data" lay-filter="company_data">
   <ul class="layui-tab-title">
     <li class="layui-this">行情走势</li>
@@ -558,11 +193,251 @@
                 });
             </script>
         </div>
-{#      &***************************************************************************公司概况***********************************写到这了#}
-        <div class="layui-tab-item"></div>
-        <div class="layui-tab-item"></div>
-        <div class="layui-tab-item"></div>
-        <div class="layui-tab-item"></div>
+{#      &***************************************************************************公司概况#}
+        <div class="layui-tab-item">
+            <div class="layui-fluid">
+                <div class="company_title layui-row layui-col-space5" style="height: 100px;background: rgb(242,242,242)">
+                      <div class="layui-col-md2">
+                          <div style="text-align: center;font-size:25px;" id="shortname" class="content-item-data">公司简称</div>
+                          <div style="text-align: center;font-size:18px;color: gray" id="code" class="content-item-data">证券号</div> </div>
+                      <div class="layui-col-md1">
+                          <div style="line-height: 100px;text-align: center">
+                              <button type="button" class="layui-btn" id="add_button">
+                                    <i class="layui-icon">&#xe608;</i> 添加
+                              </button>
+                          </div>
+                      </div>
+                      <div class="layui-col-md2">
+                          <div class="layui-col-md8">
+                                <div style="text-align: center" class="content-item-data"><span id="sub-trend-value" style="font-size: 30px;color: rgb(18,152,0);"></span></div>
+                                <div style="text-align: center" class="content-item-data"><span id="time" style="font-size: 16px;color:gray;"></span></div>
+                          </div>
+                          <div class="layui-col-md4">
+                                other
+                          </div>
+                      </div>
+                      <div class="layui-col-md1"><div class="content-item-data">今开：<span id="todayopen"></span></div><div class="content-item-data">昨收：<span id="yesterdatclose"></span></div></div>
+                      <div class="layui-col-md1"><div class="content-item-data">最高：<span id="maxx"></span></div><div class="content-item-data">最低：<span id="minn"></span></div></div>
+                      <div class="layui-col-md2"><div class="content-item-data">成交量：<span id="dealaccount"></span></div><div class="content-item-data">成交额：<span id="dealmonney"></span></div></div>
+                      <div class="layui-col-md1"><div class="content-item-data">振幅：<span id="zhenfu"></span></div><div class="content-item-data">换手：<span id="huanshou"></span></div></div>
+                      <div class="layui-col-md1"><div class="content-item-data">市盈率：<span id="shiying"></span></div><div class="content-item-data">市净率：<span id="shijing"></span></div></div>
+                      <div class="layui-col-md1"><div style="line-height: 50px;margin-left: 5px;">市龄:<span id="year"></span></div></div>
+{#                      <div class="layui-col-md1">9</div>#}
+                   </div>
+                <script>
+                        var oShortname=document.getElementById('shortname');
+                        var oCode=document.getElementById('code');
+                        var oAdd_button=document.getElementById('add_button');
+                        var oSubtrendvalue=document.getElementById('sub-trend-value');
+                        var oTime=document.getElementById('time');
+                        var oTodayopen=document.getElementById('todayopen');
+                        var oYesterdayclose=document.getElementById('yesterdatclose');
+                        var oMaxx=document.getElementById('maxx');
+                        var oMinn=document.getElementById('minn');
+                        var oDealaccount=document.getElementById('dealaccount');
+                        var oDealmonney=document.getElementById('dealmonney');
+                        var oZhenfu=document.getElementById('zhenfu');
+                        var oHuanshou=document.getElementById('huanshou');
+                        var oShiying=document.getElementById('shiying');
+                        var oShijing=document.getElementById('shijing');
+                        var oYear=document.getElementById('year');
+                        oAdd_button.onclick=function(){
+                            if (getCookie("username") != 'false') {
+                                alert("添加成功！"+getCookie("username"));
+                            } else {
+                                alert("请先登录！");
+                                document.getElementById('btn_showlogin').onclick();
+                            }
+
+                        }
+                        $.ajax({
+                             type:'get',
+                             url:'/company_gaikuang',
+                             success:function (data) {
+                                 var obj = JSON.parse(data);
+                                 oShortname.innerText=obj["shortname"];
+                                 oCode.innerText=obj["code"];
+                                 oSubtrendvalue.innerText=obj["sub-trend-value"];
+                                 oTime.innerText=obj["time"];
+                                 oTodayopen.innerText=obj["todayopen"];
+                                 oYesterdayclose.innerText=obj["yesterdatclose"];
+                                 oMaxx.innerText=obj["maxx"];
+                                 oMinn.innerText=obj["minn"];
+                                 oDealaccount.innerText=obj["dealaccount"];
+                                 oDealmonney.innerText=obj["dealmonney"];
+                                 oZhenfu.innerText=obj["zhenfu"];
+                                 oHuanshou.innerText=obj["huanshou"];
+                                 oShiying.innerText=obj["shiying"];
+                                 oShijing.innerText=obj["shijing"];
+                                 oYear.innerText=obj["year"];
+                                 console.log(obj);
+                             }
+                        });
+
+                    </script>
+                <table class="layui-table" lay-even style="margin-top: 50px;text-align: center">
+                  <colgroup>
+                    <col width="100">
+                    <col width="400">
+                    <col width="100">
+                    <col width="400">
+                  </colgroup>
+                  <tbody>
+                    <tr>
+                      <td>成立日期</td>
+                      <td id="birthday"></td>
+                      <td>邮箱</td>
+                      <td id="email"></td>
+                    </tr>
+                    <tr>
+                      <td>上市日期</td>
+                      <td id="marketday"></td>
+                      <td>电话</td>
+                      <td id="telephone"></td>
+                    </tr>
+                    <tr>
+                      <td>官方网站</td>
+                      <td id="website"></td>
+                      <td>传真</td>
+                      <td id="fax"></td>
+                    </tr>
+                    <tr>
+                      <td>注册地址</td>
+                      <td id="registeraddress"></td>
+                      <td>办公地址</td>
+                      <td id="workaddress"></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <script>
+                        var oBirthday=document.getElementById('birthday');
+                        var oEmail=document.getElementById('email');
+                        var oMarketday=document.getElementById('marketday');
+                        var oTelephone=document.getElementById('telephone');
+                        var oWebsite=document.getElementById('website');
+                        var oFax=document.getElementById('fax');
+                        var oRegisteraddress=document.getElementById('registeraddress');
+                        var oWorkaddress=document.getElementById('workaddress');
+                        $.ajax({
+                             type:'get',
+                             url:'/company_gaikuang',
+                             success:function (data) {
+                                 var obj = JSON.parse(data);
+                                 oBirthday.innerText=obj["birthday"];
+                                 oEmail.innerText=obj["email"];
+                                 oMarketday.innerText=obj["marketday"];
+                                 oTelephone.innerText=obj["telephone"];
+                                 oWebsite.innerText=obj["website"];
+                                 oFax.innerText=obj["fax"];
+                                 oRegisteraddress.innerText=obj["registeraddress"];
+                                 oWorkaddress.innerText=obj["workaddress"];
+
+                                 console.log(obj);
+                             }
+                        });
+                </script>
+            </div>
+        </div>
+{#      ****************************************************************************公司高管#}
+        <div class="layui-tab-item">
+            <div class="layui-fluid">
+                <table class="layui-table" lay-even style="margin-top: 50px;text-align: center" >
+                  <colgroup>
+                    <col width="100">
+                    <col width="400">
+                    <col width="100">
+                    <col width="400">
+                  </colgroup>
+                  <tbody>
+                    <tr>
+                      <td>董事长</td>
+                      <td id="chairman"></td>
+                      <td>总经理</td>
+                      <td id="generalmanager"></td>
+                    </tr>
+                    <tr>
+                      <td>财务总监</td>
+                      <td id="financialofficer"></td>
+                      <td>董事会秘书</td>
+                      <td id="secretary"></td>
+                    </tr>
+                    <tr>
+                      <td>董事会成员</td>
+                      <td id="member" colspan="3"></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <script>
+                        var ochairman=document.getElementById('chairman');
+                        var ogeneralmanager=document.getElementById('generalmanager');
+                        var ofinancialofficer=document.getElementById('financialofficer');
+                        var osecretary=document.getElementById('secretary');
+                        var omember=document.getElementById('member');
+                        $.ajax({
+                             type:'get',
+                             url:'/company_gaikuang',
+                             success:function (data) {
+                                 var obj = JSON.parse(data);
+                                 ochairman.innerText=obj["chairman"];
+                                 ogeneralmanager.innerText=obj["generalmanager"];
+                                 ofinancialofficer.innerText=obj["financialofficer"];
+                                 osecretary.innerText=obj["secretary"];
+                                 omember.innerText=obj["member"];
+                                 console.log(obj);
+                             }
+                        });
+                </script>
+            </div>
+        </div>
+{#      ****************************************************************************股份结构#}
+        <div class="layui-tab-item">
+            <div class="layui-fluid" style="text-align: center;">
+                 <table id="shares_struct"  lay-filter="shares_struct" style="text-align: center;"></table>
+             </div>
+            <script>
+                layui.use('table', function(){
+                var table = layui.table;
+                table.render({
+                    elem: '#shares_struct',
+                    width:1000,
+                    url:'/get_sharesstruct_table',
+                    {#page:true,#}
+                    cols: [[ //表头
+                              {field: 'change_date', title: '变动日期',width:200,sort:true,align:'center'},
+                              {field: 'change_reason', title: '变动原因',width:200,align:'center'},
+                              {field: 'total_shares', title: '总股数(万股)',width:200,sort:true,align:'center'},
+                              {field: 'liutong_shares', title: '已流通股份(万股)',width:200,sort:true,align:'center'},
+                              {field: 'limite_shares', title: '流通受限股份(万股)',width:200,sort:true,align:'center'},
+                            ]]
+                })
+            });
+            </script>
+        </div>
+{#      ****************************************************************************十大股东#}
+        <div class="layui-tab-item">
+             <div class="layui-fluid" style="text-align: center;">
+                 <table id="top10_member"  lay-filter="top10_member" ></table>
+             </div>
+            <script>
+                layui.use('table', function(){
+                var table = layui.table;
+                table.render({
+                    elem: '#top10_member',
+                    width:800,
+                    url:'/get_top10member_table',
+                    {#page:true,#}
+                    cols: [[ //表头
+                              {field: 'ranking', title: '股东名次',width:100,align:'center'},
+                              {field: 'membertname', title: '股东名称',width:400,align:'center'},
+                              {field: 'sharehold_num', title: '持股数量(万股)',width:100,align:'center'},
+                              {field: 'sharehold_pro', title: '持股比例(%)',width:100,align:'center'},
+                              {field: 'nature', title: '股份性质',width:100,align:'center'},
+                            ]]
+                })
+            });
+            </script>
+        </div>
+{#      ****************************************************************************财务报表#}
         <div class="layui-tab-item"></div>
 {#      **********************************************************************财务分析#}
         <div class="layui-tab-item">
@@ -878,7 +753,7 @@
         <p class="paserr err">Password cannot be empty!</p>
       </div>
       <div class="form-group">
-        <button type="button" onclick="signin()" class="btn btn-default"><i>Sign in</i></button>
+        <button type="button" onclick="signin()" class="btn btn-default" ><i>Sign in</i></button>
         <span>Don't have an account? <a href="#" class="create_account" id="showSignup">Sign up</a></span><br>
         <span>Forget your password? <a href="#" class="create_account" id="showFindpass">Find back your
             password</a></span>
@@ -962,6 +837,8 @@
     </form>
   </div>
   <div class="cover"></div>
-    <script src="../static/js/script.js"></script>
+    <script src="../static/script/script.js"></script>
+<script type="text/javascript" src="../static/script/login.js"></script>
+
 </body>
 </html>

@@ -2,6 +2,7 @@ import json
 from flask import Flask, render_template, request, Blueprint
 import smtplib
 import random
+import time
 from email.mime.text import MIMEText
 from email.utils import formataddr
 
@@ -30,6 +31,10 @@ def details():
 def company():
     return render_template("company.html")
 
+@analysis.route('/cookie')
+def cookie():
+    return render_template("cookie.html")
+
 
 @analysis.route('/get_table', methods=["GET"])
 def get_tabledata():
@@ -43,9 +48,29 @@ def get_interested_table():
         data_item={"code":0,"msg":"","count":5,"data":[{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"}]}
         return json.dumps(data_item)
 
+
+@analysis.route('/get_top10member_table', methods=["GET"])
+def get_top10member_table():
+        data_item={"code":0,"msg":"","count":10,"data":[{"ranking":"1","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"1","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"2","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"3","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"4","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"5","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"6","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"7","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"8","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"9","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"}]}
+        return json.dumps(data_item)
+
+
+@analysis.route('/get_sharesstruct_table', methods=["GET"])
+def get_sharesstruct_table():
+        data_item={"code":0,"msg":"","count":5,"data":[{"change_date":"2017-5-5","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},{"change_date":"2017-1-5","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},{"change_date":"2017-5-30","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},{"change_date":"2017-5-7","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},{"change_date":"2017-6-5","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},]}
+        return json.dumps(data_item)
+
+
 @analysis.route('/getrandom', methods=["GET"])
 def getrandom():
         return str(random.random())
+
+
+@analysis.route('/company_gaikuang', methods=["GET"])
+def company_gaikuang():
+    strtime=time.strftime("%Y-%m-%d");
+    data={"birthday":"1999-6-26","email":"841219366@qq.com","marketday":"2010-10-1","telephone":"1212121212","website":"www.baidu.com","fax":"0755-11201","registeraddress":"qjdkjaksnkcakcnzk","workaddress":"1as1d2a1d21as2d1a","shortname":"顺丰控股","code":"E12010","sub-trend-value":"48.19","time":strtime,"todayopen":"48.10","yesterdatclose":"47.20","maxx":"48.20","minn":"47.30","dealaccount":"245.2万","dealmonney":"1.02亿","zhenfu":"2.0%","huanshou":"0.6%","shiying":"6","shijing":"60","year":"10年","chairman":"杨国豪","generalmanager":"杨国豪","financialofficer":"杨国豪","secretary":"杨国豪","member":"杨国豪"}
+    return json.dumps(data)
 
 
 @analysis.route('/sendemailcode',methods=['POST'])
