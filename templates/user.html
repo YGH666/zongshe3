@@ -33,15 +33,13 @@
                                      }
                                  }
                              });
+                    get_usrimg();
 
             {#alert("Hello!"+getCookie("username"));#}
             var oUsrname=document.getElementById('usrname');
             oUsrname.innerText=getCookie("username");
 
-            var oTime=document.getElementById('time');
-            var d=new Date();
-            var odate=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+(d.getDate());
-            oTime.innerText=odate;
+
             var oShowlogin=document.getElementById('btn_showlogin');
             var osignedusermenu=document.getElementById('signed-user-menu');
 
@@ -66,6 +64,27 @@
                 removeCookie("username");
                 window.location.href="index1";
             }
+        }
+
+        function get_usrimg() {
+            var data1 = {data: JSON.stringify({"username":getCookie("username"),"handle":"get"})};
+            $.ajax({
+                type: 'post',
+                url: '/upload',
+                data:data1,
+                success:function (data) {
+                    data=data.slice(1,-1);
+                    console.log(data);
+                    var img = document.createElement('img');//创建一个标签
+                      img.setAttribute('src','data:image/png;base64,'+data);
+                      document.getElementById('btn_showlogin').innerHTML="";
+                      document.getElementById('btn_showlogin').appendChild(img);
+
+                      var img1 = document.createElement('img');//创建一个标签
+                      img1.setAttribute('src','data:image/png;base64,'+data);
+                      document.getElementById('usrimg').appendChild(img1);
+                }
+            });
         }
 
         function getCoded(coded,num,length) {
@@ -129,13 +148,58 @@
     </style>
 </head>
 <body>
+<style>
+    #usrimg{
+       width: 100%;
+        height: 200px;
+        position: relative;
+    }
+    #usrimg img{
+        width:100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+</style>
 <div class="layui-container box-shadow usrmessage" >
     <fieldset class="layui-elem-field">
-      <legend><i class="layui-icon layui-icon-date" style="font-size: 26px; color: #1E9FFF;"></i> 当前时间</legend>
-      <div class="layui-field-box">
-        <div style="text-align: center"><span id="time" style="font-size: 35px;color: rgb(102,102,102)"></span> </div>
-      </div>
+        <div id="usrimg" ></div>
     </fieldset>
+    <button type="button" class="layui-btn" id="test1" style="margin-left: 20%">
+            <i class="layui-icon">&#xe67c;</i>上传图片
+    </button>
+    <script>
+
+
+
+    layui.use('upload', function(){
+      var upload = layui.upload;
+      var data = {data: JSON.stringify({"username":getCookie("username"),"handle":"post"})};
+      //执行实例
+      var uploadInst = upload.render({
+        elem: '#test1' //绑定元素
+        ,url: '/upload' //上传接口
+        ,type:'post'
+          ,data:data
+          ,acceptMime: 'image/*'
+          ,size:1024*5
+        ,done: function(res){
+          //上传完毕回调
+              {#console.log(typeof (res))#}
+              var img = document.createElement('img');//创建一个标签
+              img.setAttribute('src','data:image/png;base64,'+res.data["src"]);
+              document.getElementById('usrimg').appendChild(img);
+              get_usrimg();
+        }
+        ,error: function(){
+          //请求异常回调
+              alert("no")
+        }
+      });
+    });
+    </script>
+
 
     <fieldset class="layui-elem-field" style="margin-top: 50px">
       <legend><i class="layui-icon layui-icon-user" style="font-size: 26px; color: #1E9FFF;"></i> 用户名</legend>
@@ -148,17 +212,10 @@
       <legend><i class="layui-icon layui-icon-chat" style="font-size: 26px; color: #1E9FFF;"></i> 联系我们</legend>
       <div class="layui-field-box">
         <div style="text-align: left">
-            <span style="font-size: 15px;color: rgb(102,102,102)">Tel：123456789</span>
-            <span style="font-size: 15px;color: rgb(102,102,102)">Email:123456789@qq.com</span>
-            <span style="font-size: 15px;color: rgb(102,102,102)">Address:xx-yy-zz</span>
+            <span style="font-size: 15px;color: rgb(102,102,102)">Tel：18181991126</span>
+            <span style="font-size: 15px;color: rgb(102,102,102)">Email:841219366@qq.com</span>
+            <span style="font-size: 15px;color: rgb(102,102,102)">Address:四川省成都市电子科技大学</span>
         </div>
-      </div>
-    </fieldset>
-
-    <fieldset class="layui-elem-field" style="margin-top: 50px;height: 150px">
-      <legend>待添加内容</legend>
-      <div class="layui-field-box">
-        <span>待添加内容</span>
       </div>
     </fieldset>
 

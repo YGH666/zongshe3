@@ -23,7 +23,9 @@
             var data = {data: JSON.stringify({"value":serchdata})};
             getTop50();
             setInterval(getTop50,60000);
-
+            if (getCookie("username")!='false') {
+                    get_usrimg();
+                }
             function getTop50(){
                 $.ajax({
                     type:'POST',
@@ -107,6 +109,22 @@
 
             }
 
+            function get_usrimg() {
+            var data1 = {data: JSON.stringify({"username":getCookie("username"),"handle":"get"})};
+            $.ajax({
+                type: 'post',
+                url: '/upload',
+                data:data1,
+                success:function (data) {
+                    data=data.slice(1,-1);
+                    console.log(data);
+                    var img = document.createElement('img');//创建一个标签
+                      img.setAttribute('src','data:image/png;base64,'+data);
+                      document.getElementById('btn_showlogin').innerHTML="";
+                      document.getElementById('btn_showlogin').appendChild(img);
+                }
+            });
+        }
     var alldata=[];
     var compare = (prop)=>{
                         return (a,b)=>{

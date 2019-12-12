@@ -16,7 +16,8 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
     var oSignout=document.getElementById('signout');
 
     oUsrpage.onclick=function () {
-        var link="user"+"?username="+getCookie("username");
+        var link="user";
+        // +"?username="+getCookie("username");
         window.location.href=link;
     };
 
@@ -139,6 +140,7 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
                              alert('登陆成功');
                              // +getCookie("username")
                              closeLogin();
+                             window.location.reload();
                          }
                          else if(data.tag=="account doesn't exist")
                          {

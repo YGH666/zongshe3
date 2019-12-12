@@ -7,7 +7,16 @@ import pymysql
 from email.mime.text import MIMEText
 from email.utils import formataddr
 
+from flask_uploads import configure_uploads,UploadSet
+import os,base64
+# from config import  app
+
+
+
+
+
 analysis = Blueprint('webaccess', __name__)
+
 def getConn():
     conn = pymysql.connect(host='192.168.182.130', port=3306, database='test_db',
                                user='YgH1',
@@ -42,9 +51,63 @@ def user():
     return render_template("user.html")
 
 
-@analysis.route('/image')
-def image():
-    return render_template("image.html")
+@analysis.route('/imageupdate')
+def imageupdate():
+    return render_template("imageupdate.html")
+
+
+Basepath=os.path.abspath(os.path.dirname('static'))
+
+
+@analysis.route('/upload',methods=['POST'])
+def upload_img():
+    if request.method=="POST":
+        data = json.loads(request.form.get('data'))
+        # 获取用户名
+        username = str(data['username'])
+        #辨别操作
+        handle = str(data['handle'])
+        # 获取图片
+        if handle=='post':
+            img=request.files.get('file')
+            picname =username+"."+"jpg"
+            # +str(img.filename).split(".")[-1]
+            path=Basepath+'/static/upload/'
+            img_path=path+picname
+            # print(img_path)
+            img.save(img_path)
+            with open(img_path, 'rb') as f:
+                img = base64.b64encode(f.read()).decode()
+            return json.dumps({"code": 0, "msg": "", "data": {"src": img}})
+
+        else:
+            picname = username + "." + "jpg"
+            moren_picname="moren.jpg"
+            # +str(img.filename).split(".")[-1]
+            path = Basepath + '/static/upload/'
+
+            img_path = path + picname
+            moren_path = path+moren_picname
+            # print(img_path)
+            if os.path.exists(img_path):
+                with open(img_path, 'rb') as f:
+                    img = base64.b64encode(f.read()).decode()
+                # data_item = {img}
+                return json.dumps(img)
+            else:
+                with open(moren_path, 'rb') as f:
+                    img = base64.b64encode(f.read()).decode()
+                # data_item = {img}
+                return json.dumps(img)
+
+
+@analysis.route('/download_img', methods=['POST'])
+def download_img():
+        data = json.loads(request.form.get('data'))
+        # 获取用户名
+        username = str(data['username'])
+        return json.dumps({"res":username})
+
 
 @analysis.route('/get_table', methods=["POST"])
 def get_tabledata():
@@ -407,3 +470,5 @@ def sendemailcode():
     server.sendmail(my_sender, [my_user, ], msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
     server.quit()  # 关闭连接
     return checkcode
+
+

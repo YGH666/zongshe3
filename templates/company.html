@@ -32,7 +32,9 @@
                 stock_code='sh'+stock_code
             }
             {#alert(stock_code)#}
-
+            if (getCookie("username")!='false') {
+                    get_usrimg();
+                }
 
 
 
@@ -561,6 +563,22 @@
                         oSeason.click();
         }
 
+    function get_usrimg() {
+            var data1 = {data: JSON.stringify({"username":getCookie("username"),"handle":"get"})};
+            $.ajax({
+                type: 'post',
+                url: '/upload',
+                data:data1,
+                success:function (data) {
+                    data=data.slice(1,-1);
+                    console.log(data);
+                    var img = document.createElement('img');//创建一个标签
+                      img.setAttribute('src','data:image/png;base64,'+data);
+                      document.getElementById('btn_showlogin').innerHTML="";
+                      document.getElementById('btn_showlogin').appendChild(img);
+                }
+            });
+        }
 
     function GetRequest() {
             var url = location.search; //获取url中"?"符后的字串
