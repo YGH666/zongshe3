@@ -17,51 +17,216 @@
     <script>
         window.onload=function () {
             var keyword = GetRequest();
+            var obj = eval(keyword);
+            var serchdata=obj.keyword;
 
-            console.log(keyword);
-            console.log(JSON.stringify(keyword));
-            search_req(keyword);
-        }
+            var data = {data: JSON.stringify({"value":serchdata})};
+            getTop50();
+            setInterval(getTop50,60000);
 
-{#****************************************************************************向服务器传输关键字并获取返回数据#}
-        function search_req(words) {
-            $.ajax({
-                type: "post",
-                url: "http://148.70.200.102:11250/search",
-                async: true,
-                contentType: 'application/json',
-                dataType: 'JSON',
-                xhrFields: {withCredentials: false},
-                crossDomain: true,
-                data: JSON.stringify(words), //将对象转为json字符串
-                success: function (data) {
-                  console.log(data);
-                  if (data.tag == "success") {
-                    alert('查询成功');
-                  }
-                  else {
-                      alert('无匹配数据');
-                  }
+            function getTop50(){
+                $.ajax({
+                    type:'POST',
+                    url:'/get_allcode',
+                    success:function (data) {
+                        var codes=JSON.parse(data);
 
-                }
-            });
-        }
-
-        function GetRequest() {
-            var url = location.search; //获取url中"?"符后的字串
-            var theRequest = new Object();
-            if (url.indexOf("?") != -1) {
-                var str = url.substr(1);
-                strs = str.split("&");
-                for (var i = 0; i < strs.length; i++) {
-                    theRequest[strs[i].split("=")[0]] = decodeURIComponent(strs[i].split("=")[1]);
-                }
+                        var end=codes.length/3;
+                        var num=0;
+                        for (var i=0;i<1000;i++) {
+                            var Code=codes[i];
+                            num++;
+                            dealCode(Code,num);
+                        }
+                    }
+                });
             }
-            return theRequest;
+
+
+          layui.use('table', function(){
+          var table = layui.table;
+          table.on('row(search_table)', function(obj){
+              console.log(obj.tr); //得到当前行元素对象
+              console.log(obj.data['id']); //得到当前行数据
+              var link="company"+"?id="+obj.data['id'];
+              window.location.href=link;
+              //obj.del(); //删除当前行
+              //obj.update(fields) //修改当前行数据
+            });
+
+          table.on('row(interested_table)', function(obj){
+              console.log(obj.tr); //得到当前行元素对象
+              console.log(obj.data['id']); //得到当前行数据
+              var link="company"+"?id="+obj.data['id'];
+              window.location.href=link;
+              //obj.del(); //删除当前行
+              //obj.update(fields) //修改当前行数据
+            });
+                    {#************************************************************************搜索结果#}
+            table.render({
+                method:'POST',
+                elem: '#search_table',
+                height: 500,
+                width:1000,
+                where:data,
+                url: '/get_table', //数据接口
+                page: {
+                    layout:['limit','count','prev','page','next','skip'],
+                    limit:10,
+                    limits:[5,10,15],
+                    groups:10,
+                    first:"首页",
+                    last:"尾页"
+                },
+                cols: [[ //表头
+                  {field: 'id', title: '证券代码',align:'center', sort: true, fixed: 'left',width:120},
+                  {field: 'shortname',align:'center', title: '公司简称'},
+                  {field: 'reg_place',align:'center', title: '注册地'},
+                  {field: 'market_time',align:'center', title: '上市时间', sort: true},
+                  {field: 'executive',align:'center', title: '主营业务'}
+                ]],
+                  text: {
+                    none: '暂无匹配数据'
+                  }
+            });
+                 {#************************************************************************随机推荐#}
+            table.render({
+                elem: '#interested_table',
+                {#height: 500,#}
+                url:'/get_interested_table',
+                {#page:true,#}
+                cols: [[ //表头
+                          {field: 'id', title: '证券代码',align:'center',width:120},
+                          {field: 'shortname', title: '公司简称',align:'center',width:120}
+                        ]]
+            });
+
+
+            });
+
+
+            }
+
+    var alldata=[];
+    var compare = (prop)=>{
+                        return (a,b)=>{
+                            return parseFloat(a[prop])>parseFloat(b[prop] )? 1 : -1
+                        }
+                    };
+    var compare1 = (prop)=>{
+                        return (a,b)=>{
+                            return parseFloat(a[prop])<parseFloat(b[prop] )? 1 : -1
+                        }
+                    };
+    {#*********************************************************调用接口获得所有股票的实时数据******* #}
+    function dealCode(Code,num) {
+                        $.ajax({
+                            type:'GET',
+                            dataType:"script",
+                            cache:"false",
+                             url:'http://hq.sinajs.cn/list=s_'+Code,
+                             success:function (a) {
+                                 var data=eval("hq_str_s_"+Code);
+                                 var codeid=Code.substr(2);
+                                 var obj=data.split(',');
+                                 var oDiezhangfu=obj[3];
+                                 alldata.push({"id":codeid,"shortname":obj[0],"diezhangfu":oDiezhangfu});
+                                 if (num==1000){
+                                     console.log("SUCCESS");
+                                     var allSortData=alldata.sort(compare('diezhangfu'));
+                                     console.log(allSortData);
+                                     var diefuTop50=allSortData.slice(0,50);                                                    //跌幅前50
+                                     for (var i=0;i<diefuTop50.length;i++){
+                                         diefuTop50[i]["rank"]=i+1;
+                                     }
+                                     var zhangfuTop50=allSortData.slice(-50).sort(compare1('diezhangfu'));                    //涨幅前50
+                                     for (var i=0;i<zhangfuTop50.length;i++){
+                                         zhangfuTop50[i]["rank"]=i+1;
+                                     }
+                                     console.log(diefuTop50);
+                                     console.log(zhangfuTop50);
+                                     createDieandZhang(diefuTop50,zhangfuTop50);
+                                 }
+                             }
+                        });
+    }
+
+    {#****************************************************************************向服务器传输关键字并获取返回数据#}
+        function GetRequest() {
+               var url = window.location.search; //获取url中"?"符后的字串
+               var theRequest = new Object();
+               if (url.indexOf("?") != -1) {
+                  var str = url.substr(1);
+                  strs = str.split("&");
+                  for(var i = 0; i < strs.length; i ++) {
+                      //就是这句的问题
+                     theRequest[strs[i].split("=")[0]]=decodeURI(strs[i].split("=")[1]);
+                     //之前用了unescape()
+                     //才会出现乱码
+                  }
+               }
+               return theRequest;
         }
 </script>
 
 <script type="text/javascript">
+        function createDieandZhang(diefuData,zhangfuData) {
+          layui.use('table', function(){
+          var table = layui.table;
+          table.on('row(increase_table)', function(obj){
+              console.log(obj.tr) //得到当前行元素对象
+              console.log(obj.data['id']) //得到当前行数据
+              var link="company"+"?id="+obj.data['id'];
+              window.location.href=link;
+              //obj.del(); //删除当前行
+              //obj.update(fields) //修改当前行数据
+            });
+
+          table.on('row(decrease_table)', function(obj){
+              console.log(obj.tr) //得到当前行元素对象
+              console.log(obj.data['id']) //得到当前行数据
+              var link="company"+"?id="+obj.data['id'];
+              window.location.href=link;
+              //obj.del(); //删除当前行
+              //obj.update(fields) //修改当前行数据
+            });
+
+                 {#************************************************************************涨幅#}
+            table.render({
+                elem: '#increase_table',
+                height: 500,
+                data:zhangfuData,
+                limit:50,
+                {#url:'/get_increase_table',#}
+                {#page:true,#}
+                cols: [[ //表头
+                          {field: 'rank', title: '排行',align:'center',width:80,sort:true},
+                          {field: 'id', title: '证券代码',align:'center',width:120},
+                          {field: 'shortname', title: '公司简称',align:'center',width:120},
+                          {field: 'diezhangfu', title: '涨幅(%)',align:'center',width:100,style:'color: #FE0000;'},
+                        ]]
+            });
+                 {#************************************************************************跌幅#}
+            table.render({
+                elem: '#decrease_table',
+                height: 500,
+                limit:50,
+                data:diefuData,
+                {#url:'/get_interested_table',#}
+                {#page:true,#}
+                cols: [[ //表头
+                          {field: 'rank', title: '排行',align:'center',width:80,sort:true},
+                          {field: 'id', title: '证券代码',align:'center',width:120},
+                          {field: 'shortname', title: '公司简称',align:'center',width:120},
+                          {field: 'diezhangfu', title: '跌幅(%)',align:'center',width:100,style:'color: #129800;'},
+                        ]]
+            });
+                 {#************************************************************************。。#}
+
+
+            });
+        }
+
        function searchToggle(obj, evt){
                 var container = $(obj).closest('.search-wrapper');
 
@@ -97,16 +262,12 @@
 <style>
       .search_table{
           position: absolute;
-          left: 50px;
-          top: 120px;
-          z-index: 0;
+          left: 0;
       }
 
       .recommend_table{
           position: absolute;
-          right: 50px;
-          top: 120px;
-          z-index: 0;
+          right: 0;
       }
 
     .line{
@@ -121,73 +282,87 @@
     .line2{
         {#width: 200px;#}
     }
+    .table1{
+        position: absolute;
+        top: 120px;
+        width: 90%;
+        left: 5%;
+          {#width: ;#}
+          z-index: 0;
+    }
+    .table2{
+          position: absolute;
+          top: 700px;
+        width: 92%;
+        left: 4%;
+          {#width: ;#}
+          z-index: 0;
+    }
   </style>
-  <div class="search_table">
-      <h2>为您找到的证券:</h2>
-      <div class="line line1"></div>
-      <table id="search_table"  lay-filter="search_table"></table>
+
+    <div class="layui-container table1">
+            <div class="search_table">
+                  <h2>为您找到的证券:</h2>
+                  <div class="line line1"></div>
+                  <table id="search_table"  lay-filter="search_table"></table>
+              </div>
+
+             <div class="recommend_table" >
+                  <h2>可能会感兴趣的证券:</h2>
+                  <div class="line line2"></div>
+                  <table id="interested_table" class="layui-table" lay-skin="line" lay-filter="interested_table"></table>
+              </div>
+
+    </div>
+
+
+
+
+  <div class="layui-container table2">
+      <div class="layui-row layui-col-space10">
+          <div class="layui-col-md4">
+              <div class="increase_table" >
+                  <h2>实时涨幅排行:</h2>
+                  <div class="line line2"></div>
+                  <table id="increase_table" class="layui-table" lay-skin="line" lay-filter="increase_table"></table>
+              </div>
+          </div>
+          <div class="layui-col-md4">
+              <div class="decrease_table" >
+                  <h2>实时跌幅排行:</h2>
+                  <div class="line line2"></div>
+                  <table id="decrease_table" class="layui-table" lay-skin="line" lay-filter="decrease_table"></table>
+              </div>
+          </div>
+          <div class="layui-col-md4" >
+               <h2>分时线:</h2>
+                <div class="line line2"></div>
+              <div class="layui-tab">
+                  <ul class="layui-tab-title">
+                    <li class="layui-this">上证指数</li>
+                    <li>深证成指</li>
+                  </ul>
+                  <div class="layui-tab-content">
+                    <div class="layui-tab-item layui-show"><img src="http://image.sinajs.cn/newchart/min/n/sh000001.gif" style="object-fit: cover;width: 100%;height: 100%"></div>
+                    <div class="layui-tab-item"><img src="http://image.sinajs.cn/newchart/min/n/sz399001.gif" style="object-fit: cover;width: 100%"></div>
+                  </div>
+                </div>
+              <script>
+                layui.use('element', function(){
+                  var element = layui.element;
+
+                });
+                </script>
+          </div>
+      </div>
   </div>
 
-  <div class="recommend_table" >
-      <h2>可能会感兴趣的证券:</h2>
-      <div class="line line2"></div>
-      <table id="interested_table" class="layui-table" lay-skin="line" lay-filter="interested_table"></table>
-  </div>
 
-<script>
-    layui.use('table', function(){
-      var table = layui.table;
-      table.on('row(search_table)', function(obj){
-          console.log(obj.tr) //得到当前行元素对象
-          console.log(obj.data['id']) //得到当前行数据
-          var link="company"+"?id="+obj.data['id'];
-          window.location.href=link;
-          //obj.del(); //删除当前行
-          //obj.update(fields) //修改当前行数据
-        });
-      table.on('row(interested_table)', function(obj){
-          console.log(obj.tr) //得到当前行元素对象
-          console.log(obj.data['id']) //得到当前行数据
-          //obj.del(); //删除当前行
-          //obj.update(fields) //修改当前行数据
-        });
-    table.render({
-    elem: '#search_table',
-    height: 500,
-    width:1000,
-    url: '/get_table', //数据接口
-    page: {
-        layout:['limit','count','prev','page','next','skip'],
-        limit:10,
-        limits:[5,10,15],
-        groups:2,
-        first:"首页",
-        last:"尾页"
-    },
-    cols: [[ //表头
-      {field: 'id', title: '证券代码', sort: true, fixed: 'left',width:120},
-      {field: 'shortname', title: '公司简称'},
-      {field: 'reg_place', title: '注册地'},
-      {field: 'market_time', title: '上市时间', sort: true},
-      {field: 'executive', title: '公司高管'}
-    ]],
-      text: {
-        none: '暂无匹配数据'
-      }
 
-  });
-    table.render({
-        elem: '#interested_table',
-        {#height: 500,#}
-        url:'/get_interested_table',
-        {#page:true,#}
-        cols: [[ //表头
-                  {field: 'id', title: '证券代码',width:120},
-                  {field: 'shortname', title: '公司简称',width:120}
-                ]]
-    })
-});
-</script>
+
+
+
+
 
   <nav>
     <div class="menubar">
@@ -196,7 +371,7 @@
           <form onSubmit="submitFn(this, event);">
                 <div class="search-wrapper active">
                     <div class="input-holder">
-                        <input type="text" class="search-input" placeholder="请输入关键词（代码/高管/关键字..）" />
+                        <input type="text" class="search-input" placeholder="请输入关键词（代码/主营业务/关键字..）" />
                         <button class="search-icon" onClick="searchToggle(this, event);"><span></span></button>
                     </div>
                     <span class="close" onClick="searchToggle(this, event);"></span>
@@ -205,15 +380,17 @@
                     </div>
                 </div>
           </form>
-
-
       </div>
       <div class="icons">
         <div class="secondary-icons">
-{#          <i class="icon-second"><img src="../static/img/icon-198.svg"></i>#}
-          <i class="icon-second" id="btn_showlogin"><img src="../static/img/icon-171.svg"></i>
+            <i class="layui-icon layui-icon-home icon-second" style="font-size: 25px;font-weight: bolder;position: absolute;top: 23px;right: 10%" onclick="location='index1'"></i>
+            <i class="icon-second" id="btn_showlogin" ><img src="../static/img/icon-171.svg"></i>
         </div>
-
+        <div class="signed-user-menu box-shadow" id="signed-user-menu">
+            <div id="usrpage" style="height: 50%;line-height: 40px">个人主页</div>
+            <div style="height: 1px;background: rgb(224,224,224);width: 90%;margin: auto"></div>
+            <div id="signout" style="height: 50%;line-height: 40px">退出登录</div>
+        </div>
         <i class="icon-menu"><span></span></i>
       </div>
     </div>

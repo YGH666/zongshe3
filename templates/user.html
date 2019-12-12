@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>快发A股资讯</title>
+        <script src="../static/script/jquery-3.3.1.min.js"></script>
+    <script src="../static/script/move++.js"></script>
+    <link rel="stylesheet" href="../static/layui/css/layui.css" media="all">
+    <script src="../static/layui/layui.js"></script>
+    <script src="../static/script/cookie.js"></script>
+    <link rel="stylesheet" href="../static/styles/index1.css">
+    <script>
+        var list=[];
+        window.onload=function () {
+                    var data = JSON.stringify({"username":getCookie("username")});
+                    $.ajax({
+                                 type: "post",
+                                 url: "http://148.70.200.102:11250/user/collect_list",
+                                 async: true,
+                                 contentType: 'application/json',
+                                 dataType: 'JSON',
+                                 xhrFields: {withCredentials: false},
+                                 crossDomain: true,
+                                 data:data,//将对象转为json字符串
+                                 success: function(data) {
+                                     var collect=uniq(data.collect);
+                                     var num=0;
+                                     console.log(collect);
+                                     for(var i=0;i<collect.length;i++){
+                                         var coded=collect[i];
+                                         num++;
+                                         getCoded(coded,num,collect.length);
+                                     }
+                                 }
+                             });
+
+            {#alert("Hello!"+getCookie("username"));#}
+            var oUsrname=document.getElementById('usrname');
+            oUsrname.innerText=getCookie("username");
+
+            var oTime=document.getElementById('time');
+            var d=new Date();
+            var odate=d.getFullYear()+"-"+(d.getMonth()+1)+"-"+(d.getDate());
+            oTime.innerText=odate;
+            var oShowlogin=document.getElementById('btn_showlogin');
+            var osignedusermenu=document.getElementById('signed-user-menu');
+
+            oShowlogin.onclick=function () {
+                if (osignedusermenu.style.display == "block") {
+                        osignedusermenu.style.display = 'none';
+
+                    } else {
+                        osignedusermenu.style.display = 'block';
+                    }
+            }
+
+             var oUsrpage=document.getElementById('usrpage');
+             var oSignout=document.getElementById('signout');
+
+            oUsrpage.onclick=function () {
+                var link="user"+"?username="+getCookie("username");
+                window.location.href=link;
+            }
+
+            oSignout.onclick=function () {
+                removeCookie("username");
+                window.location.href="index1";
+            }
+        }
+
+        function getCoded(coded,num,length) {
+            $.ajax({
+                                         type:'GET',
+                                         dataType:"script",
+                                         cache:"false",
+                                         url:'http://hq.sinajs.cn/list=s_'+coded,
+                                         success:function (data1) {
+                                             var data=eval("hq_str_s_"+coded);
+                                             var codeid=coded.substr(2);
+                                             console.log(codeid);
+                                             var obj=data.split(',');
+                                             var d=new Date();
+                                             var odate=d.getFullYear()+"-"+(d.getMonth() + 1).toString()+"-"+d.getDate()+" "+(d.getHours()).toString().padStart(2,'0')+":"+(d.getMinutes()).toString().padStart(2,'0');
+                                             var item={"id":codeid,"shortname":obj[0],"current":obj[1],"percent":obj[3],"updatetime":odate};
+                                             list.push(item);
+                                             if (num==length) {
+                                                 createtable(list);
+                                                console.log(list);
+                                             }
+
+                                         }
+                                    });
+        }
+
+
+        function uniq(array){
+        var temp = []; //一个新的临时数组
+        for(var i = 0; i < array.length; i++){
+            if(temp.indexOf(array[i]) == -1){
+                temp.push(array[i]);
+            }
+        }
+        return temp;
+        }
+    </script>
+    <style>
+        .red{
+            background-color: red;
+        }
+
+        .usrmessage{
+            width: 15%;
+            height: 600px;
+            {#background-color: aqua;#}
+            position: absolute;
+            left: 5%;
+            top: 100px;
+            padding-top: 10px;
+        }
+
+        .collection{
+            width: 70%;
+            height: 600px;
+            {#background-color: aqua;#}
+            position: absolute;
+            right: 5%;
+            top: 100px;
+        }
+    </style>
+</head>
+<body>
+<div class="layui-container box-shadow usrmessage" >
+    <fieldset class="layui-elem-field">
+      <legend><i class="layui-icon layui-icon-date" style="font-size: 26px; color: #1E9FFF;"></i> 当前时间</legend>
+      <div class="layui-field-box">
+        <div style="text-align: center"><span id="time" style="font-size: 35px;color: rgb(102,102,102)"></span> </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="layui-elem-field" style="margin-top: 50px">
+      <legend><i class="layui-icon layui-icon-user" style="font-size: 26px; color: #1E9FFF;"></i> 用户名</legend>
+      <div class="layui-field-box">
+        <div style="text-align: center"><span id="usrname"  style="font-size: 20px;color: rgb(102,102,102)"></span></div>
+      </div>
+    </fieldset>
+
+    <fieldset class="layui-elem-field" style="margin-top: 50px">
+      <legend><i class="layui-icon layui-icon-chat" style="font-size: 26px; color: #1E9FFF;"></i> 联系我们</legend>
+      <div class="layui-field-box">
+        <div style="text-align: left">
+            <span style="font-size: 15px;color: rgb(102,102,102)">Tel：123456789</span>
+            <span style="font-size: 15px;color: rgb(102,102,102)">Email:123456789@qq.com</span>
+            <span style="font-size: 15px;color: rgb(102,102,102)">Address:xx-yy-zz</span>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="layui-elem-field" style="margin-top: 50px;height: 150px">
+      <legend>待添加内容</legend>
+      <div class="layui-field-box">
+        <span>待添加内容</span>
+      </div>
+    </fieldset>
+
+
+</div>
+
+<div class="layui-container box-shadow collection" >
+    <fieldset class="layui-elem-field" style="height: 97%">
+      <legend><i class="layui-icon layui-icon-radio" style="font-size: 20px; color: #1E9FFF;"></i>自选板块</legend>
+      <div class="layui-field-box" style="padding: 0 5%;">
+        <table id="collect_table" class="layui-table" lay-skin="line" lay-filter="collect_table"></table>
+      </div>
+    </fieldset>
+
+<script type="text/html" id="barDemo">
+  <a class="layui-btn layui-btn-xs" lay-event="detail">查看</a>
+{#  <a class="layui-btn layui-btn-xs" lay-event="edit">编辑</a>#}
+  <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+</script>
+
+    <script>
+function createtable(list){
+    layui.use('table', function(){
+      var table = layui.table;
+
+      table.on('tool(collect_table)', function(obj){ //注：tool 是工具条事件名，test 是 table 原始容器的属性 lay-filter="对应的值"
+          var data = obj.data; //获得当前行数据
+          var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+          var tr = obj.tr; //获得当前行 tr 的 DOM 对象（如果有的话）
+
+          if(layEvent === 'detail'){ //查看
+             var link="company"+"?id="+obj.data['id'];
+             window.location.href=link;
+          } else if(layEvent === 'del'){ //删除
+            layer.confirm('确定删除该自选股？', function(index){
+                var stock_code=obj.data['id'];
+                if(stock_code[0]=='0' || stock_code[0]=='3'){
+                    stock_code='sz'+stock_code
+                }
+                else {
+                    stock_code='sh'+stock_code
+            }
+                var data = JSON.stringify({"collect":stock_code,"username":getCookie("username")});
+                $.ajax({
+                    type: "post",
+                    url: "http://148.70.200.102:11250/user/collect_delete",
+                    async: true,
+                    contentType: 'application/json',
+                    dataType: 'JSON',
+                    xhrFields: {withCredentials: false},
+                    crossDomain: true,
+                    data:data,//将对象转为json字符串
+                    success: function(data) {
+                        if(data.tag=='success'){
+                            alert("删除成功！");
+                        }
+
+                    }
+                });
+                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                layer.close(index);
+            });
+          }
+        });
+
+
+    table.render({
+        done:function(res,curr,count){
+            for(var i in res.data){
+                var codeid=res.data[i];
+                if (codeid.percent[0]=='-') {
+                    $("tr[data-index='"+i+"']").attr({"style":"color:rgb(18,152,0)"})
+                }else {
+                    $("tr[data-index='"+i+"']").attr({"style":"color:rgb(254,0,0)"})
+                }
+            }
+        },
+        elem: '#collect_table',
+        height: 500,
+        {#url:'/get_collect_table',#}
+        {#page:true,#}
+        data:list,
+        cols: [[ //表头
+                  {field: 'id', title: '证券代码',align:'center',width:140},
+                  {field: 'shortname', title: '公司简称',align:'center',width:140},
+                  {field:'current',title:'实时股价',align:'center',width:143},
+                  {field:'percent',title:'跌涨率',align:'center',width:143},
+                  {field:'updatetime',title:'数据更新时间',align:'center',width:210},
+                  {fixed: 'right', title:'操作管理',width:150, align:'center', toolbar: '#barDemo'}
+                ]],
+        text: {
+            none: '您还没有收藏任何自选股哦！'
+          }
+    })
+});
+}
+
+
+
+</script>
+</div>
+
+
+    <nav>
+    <div class="menubar">
+      <a href="index1" class="home"> </a>
+      <div class="icons">
+       <div class="secondary-icons">
+{#          <i class="icon-second"><img src="../static/img/icon-198.svg"></i>#}
+            <i class="layui-icon layui-icon-home icon-second" style="font-size: 25px;font-weight: bolder;position: absolute;top: 23px;right: 10%" onclick="location='index1'"></i>
+          <i class="icon-second" id="btn_showlogin" ><img src="../static/img/icon-171.svg"></i>
+        </div>
+        <div class="signed-user-menu box-shadow" id="signed-user-menu">
+            <div id="usrpage" style="height: 50%;line-height: 40px">个人主页</div>
+            <div style="height: 1px;background: rgb(224,224,224);width: 90%;margin: auto"></div>
+            <div id="signout" style="height: 50%;line-height: 40px">退出登录</div>
+        </div>
+
+        <i class="icon-menu"><span></span></i>
+      </div>
+    </div>
+    <ul class="menu">
+      <li class="menu-link"><a href="#0" class="text-item">About Us</a></li>
+      <li class="menu-link sub">
+        <a href="#0" class="text-item">Our Members<span class="icon"></span></a>
+        <ul class="submenu">
+          <li class="sub-item"><a href="#0">Mr.Yang</a></li>
+          <li class="sub-item"><a href="#0">Mr.He</a></li>
+          <li class="sub-item"><a href="#0">Ms.Liu</a></li>
+          <li class="sub-item"><a href="#0">Ms.Guo</a></li>
+        </ul>
+      </li>
+      <li class="menu-link sub">
+        <a href="#0" class="text-item">Our Services<span class="icon"></span></a>
+        <ul class="submenu">
+          <li class="sub-item"><a href="#0">Print Design</a></li>
+          <li class="sub-item"><a href="#0">Web Design</a></li>
+          <li class="sub-item"><a href="#0">Mobile App Development</a></li>
+          <li class="sub-item"><a href="#0">UI Design</a></li>
+        </ul>
+      </li>
+      <li class="menu-link sub">
+          <a href="#0" class="text-item">联系我们<span class="icon"></span></a>
+          <ul class="submenu">
+              <li class="sub-item"><a href="http://wpa.qq.com/msgrd?v=3&amp;uin=841219366&amp;site=qq&amp;menu=yes" target="_blank" title="QQ">Mr.Yang</a></li>
+              <li class="sub-item"><a href="http://wpa.qq.com/msgrd?v=3&amp;uin=591468224&amp;site=qq&amp;menu=yes" target="_blank" title="QQ">Mr.He</a></li>
+
+          </ul>
+      </li>
+    </ul>
+  </nav>
+
+
+<script src="../static/script/script.js"></script>
+</body>
+</html>

@@ -10,10 +10,29 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
     var cover=document.getElementsByClassName('cover')[0];
     var mini_signup=document.getElementsByClassName('mini_signup')[0];
     var mini_findpass=document.getElementsByClassName('mini_findpass')[0];
+    var osignedusermenu=document.getElementById('signed-user-menu');
+
+    var oUsrpage=document.getElementById('usrpage');
+    var oSignout=document.getElementById('signout');
+
+    oUsrpage.onclick=function () {
+        var link="user"+"?username="+getCookie("username");
+        window.location.href=link;
+    };
+
+    oSignout.onclick=function () {
+        removeCookie("username");
+        window.location.href="index1";
+    };
 
     function showLogin(){
         if(getCookie("username") != 'false'){
-            alert('正在前往个人主页');
+            if (osignedusermenu.style.display == "block") {
+                osignedusermenu.style.display = 'none';
+            } else {
+                osignedusermenu.style.display = 'block';
+            }
+
 
         }
         else {
@@ -117,7 +136,8 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
                          console.log(data);
                          if(data.tag=='success'){
                              setCookie("username",username, 1);
-                             alert('登陆成功'+getCookie("username"));
+                             alert('登陆成功');
+                             // +getCookie("username")
                              closeLogin();
                          }
                          else if(data.tag=="account doesn't exist")
@@ -137,23 +157,22 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
     var checkcode='00000';
     var findpasscode='00000';
     var clock = '';
-    var nums = 10;
+    var nums = 60;
     var clock1 = '';
-    var nums1 = 10;
+    var nums1 = 60;
     var btn=document.getElementsByClassName('orange')[0];
     var btn1=document.getElementsByClassName('orange')[1];
     sendCode=function ()
     {
         var user=document.getElementById('username_signup').value;
-        var data = {
-        data: JSON.stringify({"value":user})}
+        var data = {data: JSON.stringify({"value":user})};
 
         $.ajax({
         type: 'POST',
         url: "/sendemailcode",
         data:data,
         success:function (ans) {
-                console.log(ans)
+                console.log(ans);
                 checkcode=ans;
         }
         });
@@ -168,14 +187,14 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
     {
         var user=document.getElementById('username_findpass').value;
         var data = {
-        data: JSON.stringify({"value":user})}
+        data: JSON.stringify({"value":user})};
 
         $.ajax({
         type: 'POST',
         url: "/sendemailcode",
         data:data,
         success:function (ans) {
-                console.log(ans)
+                console.log(ans);
                 findpasscode=ans;
         }
         });
@@ -196,7 +215,7 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
     clearInterval(clock);
     btn.disabled = false;
     btn.value = '点击发送验证码';
-    nums = 10;
+    nums = 60;
     }
     }
 
@@ -209,7 +228,7 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
     clearInterval(clock1);
     btn1.disabled = false;
     btn1.value = '点击发送验证码';
-    nums1 = 10;
+    nums1 = 60;
     }
     }
 
@@ -282,12 +301,12 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
                      success: function(data) {
                          console.log(data);
                          if(data.tag=='success'){
-                             alert('注册成功！')
+                             alert('注册成功！');
                              showLogin();
                          }
 
                          else if(data.tag=='repeat')
-                             alert('邮箱已被注册!')
+                             alert('邮箱已被注册!');
                              document.getElementById('signup_form').reset()
                          // window.location.href="localhost"
                      }
@@ -365,11 +384,11 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
                      success: function(data) {
                          console.log(data);
                          if(data.tag=="account doesn't exist"){
-                             alert('该邮箱未被注册！')
+                             alert('该邮箱未被注册！');
                              document.getElementById('findpass_form').reset()
                          }
                          else if(data.tag=='success'){
-                             alert('重置密码成功!')
+                             alert('重置密码成功!');
                              showLogin()
                          }
 

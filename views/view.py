@@ -1,12 +1,18 @@
 import json
-from flask import Flask, render_template, request, Blueprint
+from flask import Flask, render_template, request, Blueprint, make_response
 import smtplib
 import random
 import time
+import pymysql
 from email.mime.text import MIMEText
 from email.utils import formataddr
 
 analysis = Blueprint('webaccess', __name__)
+def getConn():
+    conn = pymysql.connect(host='192.168.182.130', port=3306, database='test_db',
+                               user='YgH1',
+                               password='YgH1@513!', charset='utf8')
+    return conn
 
 @analysis.route('/')
 def hello_world():
@@ -31,47 +37,348 @@ def details():
 def company():
     return render_template("company.html")
 
-@analysis.route('/cookie')
-def cookie():
-    return render_template("cookie.html")
+@analysis.route('/user')
+def user():
+    return render_template("user.html")
 
 
-@analysis.route('/get_table', methods=["GET"])
+@analysis.route('/image')
+def image():
+    return render_template("image.html")
+
+@analysis.route('/get_table', methods=["POST"])
 def get_tabledata():
-        # data_item = {"code":0,"msg":"","count":30,"data":[{"id":10000,"username":"user-0","sex":"女","city":"城市-0","sign":"签名-0","experience":255,"logins":24,"wealth":82830700,"classify":"作家","score":57},{"id":10001,"username":"user-1","sex":"男","city":"城市-1","sign":"签名-1","experience":884,"logins":58,"wealth":64928690,"classify":"词人","score":27},{"id":10002,"username":"user-2","sex":"女","city":"城市-2","sign":"签名-2","experience":650,"logins":77,"wealth":6298078,"classify":"酱油","score":31},{"id":10003,"username":"user-3","sex":"女","city":"城市-3","sign":"签名-3","experience":362,"logins":157,"wealth":37117017,"classify":"诗人","score":68},{"id":10004,"username":"user-4","sex":"男","city":"城市-4","sign":"签名-4","experience":807,"logins":51,"wealth":76263262,"classify":"作家","score":6},{"id":10005,"username":"user-5","sex":"女","city":"城市-5","sign":"签名-5","experience":173,"logins":68,"wealth":60344147,"classify":"作家","score":87},{"id":10006,"username":"user-6","sex":"女","city":"城市-6","sign":"签名-6","experience":982,"logins":37,"wealth":57768166,"classify":"作家","score":34},{"id":10007,"username":"user-7","sex":"男","city":"城市-7","sign":"签名-7","experience":727,"logins":150,"wealth":82030578,"classify":"作家","score":28},{"id":10008,"username":"user-8","sex":"男","city":"城市-8","sign":"签名-8","experience":951,"logins":133,"wealth":16503371,"classify":"词人","score":14},{"id":10009,"username":"user-9","sex":"女","city":"城市-9","sign":"签名-9","experience":484,"logins":25,"wealth":86801934,"classify":"词人","score":75},{"id":10010,"username":"user-10","sex":"女","city":"城市-10","sign":"签名-10","experience":1016,"logins":182,"wealth":71294671,"classify":"诗人","score":34},{"id":10011,"username":"user-11","sex":"女","city":"城市-11","sign":"签名-11","experience":492,"logins":107,"wealth":8062783,"classify":"诗人","score":6},{"id":10012,"username":"user-12","sex":"女","city":"城市-12","sign":"签名-12","experience":106,"logins":176,"wealth":42622704,"classify":"词人","score":54},{"id":10013,"username":"user-13","sex":"男","city":"城市-13","sign":"签名-13","experience":1047,"logins":94,"wealth":59508583,"classify":"诗人","score":63},{"id":10014,"username":"user-14","sex":"男","city":"城市-14","sign":"签名-14","experience":873,"logins":116,"wealth":72549912,"classify":"词人","score":8},{"id":10015,"username":"user-15","sex":"女","city":"城市-15","sign":"签名-15","experience":1068,"logins":27,"wealth":52737025,"classify":"作家","score":28},{"id":10016,"username":"user-16","sex":"女","city":"城市-16","sign":"签名-16","experience":862,"logins":168,"wealth":37069775,"classify":"酱油","score":86},{"id":10017,"username":"user-17","sex":"女","city":"城市-17","sign":"签名-17","experience":1060,"logins":187,"wealth":66099525,"classify":"作家","score":69},{"id":10018,"username":"user-18","sex":"女","city":"城市-18","sign":"签名-18","experience":866,"logins":88,"wealth":81722326,"classify":"词人","score":74},{"id":10019,"username":"user-19","sex":"女","city":"城市-19","sign":"签名-19","experience":682,"logins":106,"wealth":68647362,"classify":"词人","score":51},{"id":10020,"username":"user-20","sex":"男","city":"城市-20","sign":"签名-20","experience":770,"logins":24,"wealth":92420248,"classify":"诗人","score":87},{"id":10021,"username":"user-21","sex":"男","city":"城市-21","sign":"签名-21","experience":184,"logins":131,"wealth":71566045,"classify":"词人","score":99},{"id":10022,"username":"user-22","sex":"男","city":"城市-22","sign":"签名-22","experience":739,"logins":152,"wealth":60907929,"classify":"作家","score":18},{"id":10023,"username":"user-23","sex":"女","city":"城市-23","sign":"签名-23","experience":127,"logins":82,"wealth":14765943,"classify":"作家","score":30},{"id":10024,"username":"user-24","sex":"女","city":"城市-24","sign":"签名-24","experience":212,"logins":133,"wealth":59011052,"classify":"词人","score":76},{"id":10025,"username":"user-25","sex":"女","city":"城市-25","sign":"签名-25","experience":938,"logins":182,"wealth":91183097,"classify":"作家","score":69},{"id":10026,"username":"user-26","sex":"男","city":"城市-26","sign":"签名-26","experience":978,"logins":7,"wealth":48008413,"classify":"作家","score":65},{"id":10027,"username":"user-27","sex":"女","city":"城市-27","sign":"签名-27","experience":371,"logins":44,"wealth":64419691,"classify":"诗人","score":60},{"id":10028,"username":"user-28","sex":"女","city":"城市-28","sign":"签名-28","experience":977,"logins":21,"wealth":75935022,"classify":"作家","score":37},{"id":10029,"username":"user-29","sex":"男","city":"城市-29","sign":"签名-29","experience":647,"logins":107,"wealth":97450636,"classify":"酱油","score":27}]}
-        data_item={"code":0,"msg":"","count":10,"data":[{"id":"00001","shortname":"万达","reg_place":"深圳","market_time":"1999-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"王健林"},{"id":"00005","shortname":"万达1","reg_place":"深圳1","market_time":"1989-6-12","executive":"杨晓帅"}]}
+        limit = request.form.get("limit")
+        page = request.form.get("page")
+        print("limit= "+limit+" , page="+page)
+        data = json.loads(request.form.get('data'))
+        keyword = str(data['value'])
+
+        conn=getConn()
+        cs1 = conn.cursor()
+        sql2 = "SELECT stock_code,stock_abbre,province,listing_date,industry_classification FROM listed_company3 "
+        cs1.execute(sql2)
+        data = []
+        alldata = cs1.fetchall()
+        for s in alldata:
+            code = str(s[0]).zfill(6)
+            if keyword in code or keyword in s[1] or keyword in s[2] or keyword in s[3] or keyword in s[4]:
+                list_item = {"id": code, "shortname": s[1], "reg_place": s[2], "market_time": s[3], "executive": s[4]}
+                data.append(list_item)
+        # print(data)
+
+        count=len(data)
+        data=data[int(limit)*(int(page)-1):int(limit)*int(page)+1]
+        cs1.close()
+        conn.close()
+        data_item={"code":0,"msg":"","count":count,"data":data}
         return json.dumps(data_item)
 
 
 @analysis.route('/get_interested_table', methods=["GET"])
 def get_interested_table():
-        data_item={"code":0,"msg":"","count":5,"data":[{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"},{"id":"01010","shortname":"万达"}]}
+        conn=getConn()
+        cs1 = conn.cursor()
+        sql2 = "SELECT stock_code,stock_abbre,province,listing_date,industry_classification FROM listed_company3 "
+        cs1.execute(sql2)
+        data = []
+        alldata = cs1.fetchall()
+        for s in alldata:
+            code = str(s[0]).zfill(6)
+            list_item = {"id": code, "shortname": s[1]}
+            data.append(list_item)
+        interesting_item=[]
+        for x in range(10):
+            interesting_item.append(data[random.randint(0, len(data))])
+
+        cs1.close()
+        conn.close()
+
+        data_item={"code":0,"msg":"","count":5,"data":interesting_item}
         return json.dumps(data_item)
 
 
-@analysis.route('/get_top10member_table', methods=["GET"])
+@analysis.route('/get_caiwufengxi_data',methods=["POST"])
+def get_caiwufengxi_data():
+    data = json.loads(request.form.get('data'))
+    code = str(data['code'])
+    season = str(data['season'])
+    conn = getConn()
+    cs1 = conn.cursor()
+    sql2 = "SELECT * FROM lr_%s" % code + "_%s" % season
+    cs1.execute(sql2)
+    s = cs1.fetchall()
+    data_list = []
+
+    title = []
+    final_data = []
+    for x in s:
+        data_list_1 = []
+        for y in x:
+            data_list_1.append(y)
+        data_list.append(data_list_1)
+
+    # print(data_list)
+    title.append(data_list[0][0])
+    title.append(data_list[2][0])
+    title.append(data_list[3][0])
+
+    sql3 = "SELECT * FROM zcfz_%s" % code + "_%s" % season
+    cs1.execute(sql3)
+    ss = cs1.fetchall()
+
+    data_list2 = []
+    for x in ss:
+        data_list_2 = []
+        for y in x:
+            data_list_2.append(y)
+        data_list2.append(data_list_2)
+
+    # print(data_list2)
+    title.append(data_list2[4][0])
+    title.append(data_list2[9][0])
+
+    sql4 = "SELECT * FROM xjll_%s" % code + "_%s" % season
+    cs1.execute(sql4)
+    sss = cs1.fetchall()
+
+    data_list3 = []
+    for x in sss:
+        data_list_3 = []
+        for y in x:
+            data_list_3.append(y)
+        data_list3.append(data_list_3)
+    # print(data_list3)
+    title.append(data_list3[0][0])
+    title.append(data_list3[1][0])
+    title.append(data_list3[2][0])
+
+    final_data.append(title)
+    final_data.append(data_list[0][1:])
+    final_data.append(data_list[2][1:])
+    final_data.append(data_list[3][1:])
+
+    final_data.append(data_list2[4][1:])
+    final_data.append(data_list2[9][1:])
+
+    final_data.append(data_list3[0][1:])
+    final_data.append(data_list3[1][1:])
+    final_data.append(data_list3[2][1:])
+
+    # print(final_data)
+    cs1.close()
+    conn.close()
+    return json.dumps(final_data)
+
+
+@analysis.route('/get_top10member_table', methods=["POST"])
 def get_top10member_table():
-        data_item={"code":0,"msg":"","count":10,"data":[{"ranking":"1","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"1","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"2","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"3","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"4","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"5","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"6","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"7","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"8","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"},{"ranking":"9","membertname":"杨国豪","sharehold_num":"2010","sharehold_pro":"20%","nature":"A股"}]}
-        return json.dumps(data_item)
+    data = json.loads(request.form.get('data'))
+    code = str(data['code'])
+    datetype=str(data['datetype'])
+    conn = getConn()
+    cs1 = conn.cursor()
+    sql2 = "SELECT * FROM first_ten_%s" % code
+    cs1.execute(sql2)
+    s = cs1.fetchall()
+    data_list = []
+    for x in s:
+        if x[0] == datetype:
+            data_item = {"ranking": x[1], "membertname": x[2], "sharehold_num": x[3], "sharehold_pro": x[4],
+                         "nature": x[5]}
+            data_list.append(data_item)
+
+    data_return = {"code": 0, "msg": "", "count": 5, "data": data_list}
+    # print(data_return)
+    return json.dumps(data_return)
 
 
-@analysis.route('/get_sharesstruct_table', methods=["GET"])
+@analysis.route('/get_sharesstruct_table', methods=["POST"])
 def get_sharesstruct_table():
-        data_item={"code":0,"msg":"","count":5,"data":[{"change_date":"2017-5-5","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},{"change_date":"2017-1-5","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},{"change_date":"2017-5-30","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},{"change_date":"2017-5-7","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},{"change_date":"2017-6-5","change_reason":"定期报告","total_shares":"2002","liutong_shares":"32132.2251","limite_shares":"8.6122"},]}
+        data = json.loads(request.form.get('data'))
+        code = str(data['value'])
+        conn = getConn()
+        cs1 = conn.cursor()
+        sql2 = "SELECT * FROM shares_struct where stock_code=%s" % code
+        cs1.execute(sql2)
+        s = cs1.fetchall()
+        data = []
+        for x in s:
+            list_item = {"change_date": x[2], "change_reason": x[3], "total_shares": x[4], "liutong_shares": x[5],
+                         "limite_shares": x[6]}
+            data.append(list_item)
+        # print(data)
+
+        cs1.close()
+        conn.close()
+        data_item={"code":0,"msg":"","count":5,"data": data}
         return json.dumps(data_item)
 
 
-@analysis.route('/getrandom', methods=["GET"])
-def getrandom():
-        return str(random.random())
+@analysis.route('/getK', methods=["POST"])
+def getK():
+    data = json.loads(request.form.get('data'))
+    code = str(data['value'])
+    conn = getConn()
+    cs1 = conn.cursor()
+    sql2 = "SELECT * FROM stock_%s" % code
+    cs1.execute(sql2)
+    s = cs1.fetchall()
+    data = []
+    for x in s:
+        list_item = []
+        list_item.append(x[0].strftime("%Y/%m/%d"))
+        list_item.append(str(x[6]))
+        list_item.append(str(x[3]))
+        list_item.append('-')
+        list_item.append('-')
+        list_item.append(str(x[5]))
+        list_item.append(str(x[4]))
+        list_item.append('-')
+        data.append(list_item)
+    # print(data)
 
-
-@analysis.route('/company_gaikuang', methods=["GET"])
-def company_gaikuang():
-    strtime=time.strftime("%Y-%m-%d");
-    data={"birthday":"1999-6-26","email":"841219366@qq.com","marketday":"2010-10-1","telephone":"1212121212","website":"www.baidu.com","fax":"0755-11201","registeraddress":"qjdkjaksnkcakcnzk","workaddress":"1as1d2a1d21as2d1a","shortname":"顺丰控股","code":"E12010","sub-trend-value":"48.19","time":strtime,"todayopen":"48.10","yesterdatclose":"47.20","maxx":"48.20","minn":"47.30","dealaccount":"245.2万","dealmonney":"1.02亿","zhenfu":"2.0%","huanshou":"0.6%","shiying":"6","shijing":"60","year":"10年","chairman":"杨国豪","generalmanager":"杨国豪","financialofficer":"杨国豪","secretary":"杨国豪","member":"杨国豪"}
+    cs1.close()
+    conn.close()
     return json.dumps(data)
 
+
+@analysis.route('/company_gaikuang', methods=["POST"])
+def company_gaikuang():
+    data = json.loads(request.form.get('data'))
+    code = str(data['value'])
+    # print(code)
+    conn = getConn()
+    cs1 = conn.cursor()
+    sql2 = "SELECT * FROM company_data where stock_code=%s" % code
+    cs1.execute(sql2)
+    s = cs1.fetchall()[0]
+    sql3 = "SELECT * FROM stock_%s" % code
+    cs1.execute(sql3)
+    e = cs1.fetchall()[0]
+
+    list_item = {"code": s[1], "birthday": s[2], "email": s[3], "marketday": s[4], "telephone": s[5], "website": s[6],
+                 "fax": s[7], "registeraddress": s[8], "workaddress": s[9], "chairman": s[10], "generalmanager": s[11],
+                 "financialofficer": s[12], "secretary": s[13], "member": s[14]
+        , "shortname": e[2], "sub-trend-value": "48.19", "time": e[0].strftime("%Y-%m-%d"), "todayopen": e[6],
+                 "yesterdatclose": e[7], "maxx": e[4], "minn": e[5], "dealaccount": ('%.2f' % (e[11] / 10000)),
+                 "dealmonney": ('%.2f' % (e[12] / 100000000)), "zhangdiee": ('%.3f' % e[8]), "zhangdiefu": ('%.3f' % e[9]),
+                 "zongshizhi": ('%.2f' % (e[13] / 100000000)), "liutongshizhi": ('%.2f' % (e[14] / 100000000)),
+                 "huanshou": ('%.3f' % e[10]),
+                 }
+
+    # print(list_item)
+    cs1.close()
+    conn.close()
+    return json.dumps(list_item)
+
+
+@analysis.route('/get_datetype',methods=['POST'])
+def get_datetype():
+    data = json.loads(request.form.get('data'))
+    code = str(data['value'])
+    conn = getConn()
+    cs1 = conn.cursor()
+    sql2 = "SELECT * FROM first_ten_%s" % code
+    cs1.execute(sql2)
+    s = cs1.fetchall()
+    date_type = []
+    date_type.append(s[0][0])
+    for x in s:
+
+        if x[0] not in date_type:
+            date_type.append(x[0])
+    # print(date_type)
+
+    cs1.close()
+    conn.close()
+    return json.dumps(date_type)
+
+
+
+@analysis.route('/get_allcode',methods=['POST'])
+def get_allcode():
+    conn = getConn()
+    cs1 = conn.cursor()
+    sql = 'select stock_code from listed_company3'
+    data = []
+    cs1.execute(sql)
+    alldata = cs1.fetchall()
+    for s in alldata:
+        code = str(s[0]).zfill(6)
+        if code[0] == '0' or code[0] == '3':
+            code = 'sz' + code
+        else:
+            code = 'sh' + code
+        data.append(code)
+
+    # print(data)
+    cs1.close()
+    conn.close()
+    return json.dumps(data)
+
+
+@analysis.route('/getincometable',methods=['get'])
+def getincometable():
+    conn=getConn()
+    cs1 = conn.cursor()
+    sql = 'select main_bussiness_income from listed_company3'
+    data = []
+    cs1.execute(sql)
+    num_1 = 0
+    num_1to10 = 0
+    num_10to100 = 0
+    num_100to200 = 0
+    num_200to400 = 0
+    num_400to1000 = 0
+    num_1000to10000 = 0
+    num_10000 = 0
+    alldata = cs1.fetchall()
+    for s in alldata:
+        s = s[0]
+        if s[-1] == '万':
+            num_1 = num_1 + 1
+        elif s[-1] == '亿':
+            s = s[0:-1]
+            if s[-1] == '万':
+                num_10000 = num_10000 + 1
+            else:
+                s = float(s)
+                if s >= 1 and s < 10:
+                    num_1to10 = num_1to10 + 1
+                elif s >= 10 and s < 100:
+                    num_10to100 = num_10to100 + 1
+                elif s >= 100 and s < 200:
+                    num_100to200 = num_100to200 + 1
+                elif s >= 200 and s < 400:
+                    num_200to400 = num_200to400 + 1
+                elif s >= 400 and s < 1000:
+                    num_400to1000 = num_400to1000 + 1
+                elif s >= 1000 and s < 10000:
+                    num_1000to10000 = num_1000to10000 + 1
+
+    data = [{"value": num_1, "name": '低于1亿'}, {"value": num_1to10, "name": '1亿到10亿'},
+            {"value": num_10to100, "name": '10亿到100亿'}, {"value": num_100to200, "name": '100亿到200亿'},
+            {"value": num_200to400, "name": '200亿到400亿'}, {"value": num_400to1000, "name": '400亿到千亿'},
+            {"value": num_1000to10000, "name": '千亿到万亿'}, {"value": num_10000, "name": '高于万亿'}]
+    # print(data)
+    conn.close()
+    return json.dumps(data)
+
+
+@analysis.route('/getNewest',methods=['get'])
+def getNewest():
+    conn=getConn()
+    cs1 = conn.cursor()
+    sql = 'select stock_code,stock_abbre,listing_date from listed_company3 order by listing_date desc limit 20'
+    cs1.execute(sql)
+    data = []
+    alldata = cs1.fetchall()
+    for s in alldata:
+        data.append({"code": str(s[0]).zfill(6), "name": s[1], "date": s[2]})
+    # print(len(data))
+    conn.close()
+    return json.dumps(data)
 
 @analysis.route('/sendemailcode',methods=['POST'])
 def sendemailcode():

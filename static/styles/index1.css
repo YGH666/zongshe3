@@ -604,3 +604,22 @@ article:hover {
           background-size: 100%;
           background-color: white;
         }
+
+        .signed-user-menu{
+                    color: rgb(102,102,102);
+                    border: 1px solid rgb(224,224,224);
+                    text-align: center;
+                    width: 100px;
+                    height: 80px;
+                    position: absolute;
+                    bottom: -90px;
+                    background: white;
+                    right: 5%;
+                    cursor: pointer;
+                    display: none;
+                }
+
+                .signed-user-menu div:hover{
+                    background: #1E9FFF;
+                    color: white;
+                }

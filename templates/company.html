@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>快发A股资讯</title>
     <script src="../static/script/jquery-3.3.1.min.js"></script>
     <script src="../static/script/move++.js"></script>
-
     <link rel="stylesheet" href="../static/layui/css/layui.css" media="all">
     <script src="../static/layui/layui.js"></script>
     <script src="../static/script/cookie.js"></script>
@@ -13,15 +12,567 @@
     <link rel="stylesheet" href="../static/styles/index1.css">
     <link rel="stylesheet" type="text/css" href="../static/styles/search-form.css" />
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
-       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
-       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat/dist/ecStat.min.js"></script>
-       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/dataTool.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat/dist/ecStat.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/dataTool.min.js"></script>
 
-        <script src="https://code.highcharts.com.cn/highcharts/highcharts.js"></script>
+
+    <script src="https://code.highcharts.com.cn/highcharts/highcharts.js"></script>
     <script src="https://code.highcharts.com.cn/highcharts/modules/exporting.js"></script>
     <script src="https://img.hcharts.cn/highcharts-plugins/highcharts-zh_CN.js"></script>
 {#    <script src="https://code.highcharts.com.cn/highcharts/themes/dark-unica.js"></script>#}
+<script>
+    window.onload=function () {
+            var stock_code = GetRequest();
+            var data = {data: JSON.stringify({"value":stock_code})}
+            if(stock_code[0]=='0' || stock_code[0]=='3'){
+                stock_code='sz'+stock_code
+            }
+            else {
+                stock_code='sh'+stock_code
+            }
+            {#alert(stock_code)#}
 
+
+
+
+{#**************************************************K线图*************************************************#}
+            $.ajax({
+            type:'POST',
+            data:data,
+            url:'/getK',
+            success:function (data) {
+                var obj = JSON.parse(data);
+                {#alert(obj)#}
+                 var dom = document.getElementById("hangqingzoushi");
+        var myChart = echarts.init(dom);
+        var app = {};
+        option = null;
+        app.title = '2015 年上证指数';
+
+        var rawData = obj.reverse();
+
+        function calculateMA(dayCount, data) {
+            var result = [];
+            for (var i = 0, len = data.length; i < len; i++) {
+                if (i < dayCount) {
+                    result.push('-');
+                    continue;
+                }
+                var sum = 0;
+                for (var j = 0; j < dayCount; j++) {
+                    sum += data[i - j][1];
+                }
+                result.push(sum / dayCount);
+            }
+            return result;
+        }
+
+
+        var dates = rawData.map(function (item) {
+            return item[0];
+        });
+
+        var data = rawData.map(function (item) {
+            return [+item[1], +item[2], +item[5], +item[6]];
+        });
+        var option = {
+            backgroundColor: '#21202D',
+            legend: {
+                data: ['日K', 'MA5', 'MA10', 'MA40', 'MA30'],
+                inactiveColor: '#777',
+                textStyle: {
+                    color: '#fff'
+                }
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    animation: false,
+                    type: 'cross',
+                    lineStyle: {
+                        color: '#376df4',
+                        width: 2,
+                        opacity: 1
+                    }
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: dates,
+                axisLine: {
+                    lineStyle: {
+                        color: '#8392A5'
+                    }
+                }
+            },
+            yAxis: {
+                scale: true,
+                axisLine: {
+                    lineStyle: {
+                        color: '#8392A5'
+                    }
+                },
+                splitLine: {
+                    show: false
+                }
+            },
+            grid: {
+                bottom: 80
+            },
+            dataZoom: [{
+                textStyle: {
+                    color: '#8392A5'
+                },
+                handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+                handleSize: '80%',
+                dataBackground: {
+                    areaStyle: {
+                        color: '#8392A5'
+                    },
+                    lineStyle: {
+                        opacity: 0.8,
+                        color: '#8392A5'
+                    }
+                },
+                handleStyle: {
+                    color: '#fff',
+                    shadowBlur: 3,
+                    shadowColor: 'rgba(0, 0, 0, 0.6)',
+                    shadowOffsetX: 2,
+                    shadowOffsetY: 2
+                }
+            }, {
+                type: 'inside'
+            }],
+            animation: false,
+            series: [{
+                    type: 'candlestick',
+                    name: '日K',
+                    data: data,
+                    itemStyle: {
+                        normal: {
+                            color: '#FD1050',
+                            color0: '#0CF49B',
+                            borderColor: '#FD1050',
+                            borderColor0: '#0CF49B'
+                        }
+                    }
+                },
+                {
+                    name: 'MA5',
+                    type: 'line',
+                    data: calculateMA(5, data),
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 1
+                        }
+                    }
+                },
+                {
+                    name: 'MA10',
+                    type: 'line',
+                    data: calculateMA(10, data),
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 1
+                        }
+                    }
+                },
+                {
+                    name: 'MA40',
+                    type: 'line',
+                    data: calculateMA(20, data),
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 1
+                        }
+                    }
+                },
+                {
+                    name: 'MA30',
+                    type: 'line',
+                    data: calculateMA(30, data),
+                    smooth: true,
+                    showSymbol: false,
+                    lineStyle: {
+                        normal: {
+                            width: 1
+                        }
+                    }
+                }
+            ]
+        };;
+        if (option && typeof option === "object") {
+            myChart.setOption(option, true);
+        }
+
+                {#console.log(obj);#}
+            }
+       });
+
+            {#***************************************************************公司概况js*********************************#}
+                        var oShortname=document.getElementById('shortname');
+                        var oCode=document.getElementById('code');
+                        var oAdd_button=document.getElementById('add_button');
+                        var oSubtrendvalue=document.getElementById('sub-trend-value');
+                        var oTime=document.getElementById('time');
+                        var oTodayopen=document.getElementById('todayopen');
+                        var oYesterdayclose=document.getElementById('yesterdatclose');
+                        var oMaxx=document.getElementById('maxx');
+                        var oMinn=document.getElementById('minn');
+                        var oDealaccount=document.getElementById('dealaccount');
+                        var oDealmonney=document.getElementById('dealmonney');
+                        var oZhangdiee=document.getElementById('zhangdiee');
+                        var oZhangdiefu=document.getElementById('zhangdiefu');
+                        var oZongshizhi=document.getElementById('zongshizhi');
+                        var oLiutongshizhi=document.getElementById('liutongshizhi');
+                        var oHuanshou=document.getElementById('huanshou');
+                        oAdd_button.onclick=function(){
+                            if (getCookie("username") != 'false') {
+                                var data = JSON.stringify({"collect":oCode.innerText,"username":getCookie("username")});
+                                $.ajax({
+                                 type: "post",
+                                 url: "http://148.70.200.102:11250/user/collect",
+                                 async: true,
+                                 contentType: 'application/json',
+                                 dataType: 'JSON',
+                                 xhrFields: {withCredentials: false},
+                                 crossDomain: true,
+                                 data:data,//将对象转为json字符串
+                                 success: function(data) {
+                                     if(data.tag=='success'){
+                                         alert("添加成功！");
+                                     }
+                                     else if(data.tag=='repeat'){
+                                         alert("您已添加，请勿重复！");
+                                     }
+                                 }
+                             });
+
+
+
+                            } else {
+                                alert("请先登录！");
+                                document.getElementById('btn_showlogin').onclick();
+                            }
+
+                        }
+
+
+                        var oBirthday=document.getElementById('birthday');
+                        var oEmail=document.getElementById('email');
+                        var oMarketday=document.getElementById('marketday');
+                        var oTelephone=document.getElementById('telephone');
+                        var oWebsite=document.getElementById('website');
+                        var oFax=document.getElementById('fax');
+                        var oRegisteraddress=document.getElementById('registeraddress');
+                        var oWorkaddress=document.getElementById('workaddress');
+                        var oZhangdielv=document.getElementById('zhangdielv');
+                        var oMinute=document.getElementById('minunte');
+                        function getdata_minute(){
+                            {#alert("访问接口成功");#}
+                            $.ajax({
+                                type:'GET',
+                                dataType:"script",
+                                cache:"false",
+                                url:'http://hq.sinajs.cn/list=s_'+stock_code,
+                             success:function (a) {
+                                 var data=eval("hq_str_s_"+stock_code);
+                                 {#alert(data);#}
+                                 var obj=data.split(',');
+                                 {#alert(obj[3]);#}
+
+                                 if(obj[3][0]=='-'){
+                                    oZhangdielv.innerText=obj[3]+'%';
+                                    oZhangdielv.classList.add("die");
+                                    oSubtrendvalue.innerText=obj[1]+'↓';
+                                    oSubtrendvalue.classList.add("die");
+                                 }
+                                 else{
+                                    oZhangdielv.innerText=obj[3]+'%';
+                                    oZhangdielv.classList.add("zhang");
+                                    oSubtrendvalue.innerText=obj[1]+'↑';
+                                    oSubtrendvalue.classList.add("zhang");
+                                 }
+                                 console.log(obj);
+                             }
+                        });
+                        }
+                        {#***************************************************************每分钟请求数据获取实施股价#}
+                        getdata_minute();
+                        setInterval(getdata_minute,60000);
+                        $.ajax({
+                            type:'GET',
+                            dataType:"script",
+                            cache:"false",
+                             url:'http://hq.sinajs.cn/list='+stock_code,
+                             success:function (data) {
+                                var data=eval("hq_str_"+stock_code);
+                                 {#alert(data);#}
+                                 var obj=data.split(',');
+                                 oShortname.innerText=obj[0];
+                                 oCode.innerText=stock_code;
+
+                                 oTime.innerText=obj[30];
+                                 oTodayopen.innerText=obj[1];
+                                 oYesterdayclose.innerText=obj[2];
+                                 oMaxx.innerText=obj[4];
+                                 oMinn.innerText=obj[5];
+                                 oDealaccount.innerText=(parseInt(obj[8])/10000).toFixed(3).toString()+"万";
+                                 oDealmonney.innerText=(parseInt(obj[9])/10000).toFixed(3).toString()+"万元";
+
+                                 var date = new Date();
+                                 var hour = date.getHours();
+                                 var minute = date.getMinutes().toString().padStart(2,'0');
+
+                                 oMinute.innerText=hour+':'+minute;
+                                 console.log(obj);
+                             }
+                        });
+                        $.ajax({
+                            type:'POST',
+                            data:data,
+                            url:'/company_gaikuang',
+                            success:function (data) {
+                                var obj=JSON.parse(data)
+                                oZhangdiee.innerText=obj["zhangdiee"];
+                                 oZhangdiefu.innerText=obj["zhangdiefu"]+"%";
+                                 oZongshizhi.innerText=obj["zongshizhi"]+"亿";
+                                 oLiutongshizhi.innerText=obj["liutongshizhi"]+"亿";
+                                 oHuanshou.innerText=obj["huanshou"]+"%";
+
+                                 oBirthday.innerText=obj["birthday"];
+                                 oEmail.innerText=obj["email"];
+                                 oMarketday.innerText=obj["marketday"];
+                                 oTelephone.innerText=obj["telephone"];
+                                 oWebsite.innerText=obj["website"];
+                                 oFax.innerText=obj["fax"];
+                                 oRegisteraddress.innerText=obj["registeraddress"];
+                                 oWorkaddress.innerText=obj["workaddress"];
+                            }
+                        });
+
+        {#***************************************************************公司高管js*********************************#}
+                        var ochairman=document.getElementById('chairman');
+                        var ogeneralmanager=document.getElementById('generalmanager');
+                        var ofinancialofficer=document.getElementById('financialofficer');
+                        var osecretary=document.getElementById('secretary');
+                        var omember=document.getElementById('member');
+                        {#var data = {data: JSON.stringify({"value":stock_code})}#}
+                        $.ajax({
+                             type:'POST',
+                             data:data,
+                             url:'/company_gaikuang',
+                             success:function (data) {
+                                 var obj = JSON.parse(data);
+                                 ochairman.innerText=obj["chairman"];
+                                 ogeneralmanager.innerText=obj["generalmanager"];
+                                 ofinancialofficer.innerText=obj["financialofficer"];
+                                 osecretary.innerText=obj["secretary"];
+                                 omember.innerText=obj["member"];
+                                 console.log(obj);
+                             }
+                        });
+        {#***************************************************************股份结构js*********************************#}
+                layui.use('table', function(){
+                var table = layui.table;
+                table.render({
+                    method:'POST',
+                    elem: '#shares_struct',
+                    width:1000,
+                    where:data,
+                    url:'/get_sharesstruct_table',
+                    {#page:true,#}
+                    cols: [[ //表头
+                              {field: 'change_date', title: '变动日期',width:200,sort:true,align:'center'},
+                              {field: 'change_reason', title: '变动原因',width:200,align:'center'},
+                              {field: 'total_shares', title: '总股数(万股)',width:200,sort:true,align:'center'},
+                              {field: 'liutong_shares', title: '已流通股份(万股)',width:200,sort:true,align:'center'},
+                              {field: 'limite_shares', title: '流通受限股份(万股)',width:200,sort:true,align:'center'},
+                            ]]
+                })
+            });
+
+         {#***************************************************************十大股东*********************************#}
+                    var aDatetypes=document.getElementsByClassName('datetypes');
+                        $.ajax({
+                             type:'POST',
+                             data:data,
+                             url:'/get_datetype',
+                             success:function (data) {
+                                 var obj = JSON.parse(data);
+                                 aDatetypes[0].innerText=obj[0];
+                                 aDatetypes[1].innerText=obj[1];
+                                 aDatetypes[2].innerText=obj[2];
+                                 aDatetypes[3].innerText=obj[3];
+                                 aDatetypes[4].innerText=obj[4];
+                                 aDatetypes[0].click();
+                                 console.log(obj);
+                             }
+                        });
+         {#***************************************************************财务分析*********************************#}
+                        layui.use('element', function(){
+          var element = layui.element;
+
+          //一些事件监听
+          element.on('tab(caiwufenxi)', function(data){
+            {#alert(this.innerText[0]);#}
+            var stock_code = GetRequest();
+            var data1 = {data: JSON.stringify({"code":stock_code,"season":this.innerText[0]})}
+            $.ajax({
+                type:'POST',
+                data:data1,
+                url:'/get_caiwufengxi_data',
+                success:function (data) {
+                    var obj = JSON.parse(data);
+                    console.log(obj);
+                    for(var i=0;i< obj[4].length;i++){
+                        obj[4][i]=obj[4][i]/10;
+                    }
+                    for(var i=0;i< obj[5].length;i++){
+                        obj[5][i]=obj[5][i]/10;
+                    }
+
+                    var dom = document.getElementById("caiwufenxi");
+                    var myChart = echarts.init(dom);
+                    var app = {};
+                    option = null;
+                    app.title = '折柱混合';
+
+                    option = {
+                        tooltip: {
+                            trigger: 'axis',
+                            axisPointer: {
+                                type: 'cross',
+                                crossStyle: {
+                                    color: '#999'
+                                }
+                            }
+                        },
+                        toolbox: {
+                            feature: {
+                                dataView: {show: true, readOnly: false},
+                                magicType: {show: true, type: ['line', 'bar']},
+                                restore: {show: true},
+                                saveAsImage: {show: true}
+                            }
+                        },
+                        legend: {
+                            data:obj[0]
+                        },
+                        xAxis: [
+                            {
+                                type: 'category',
+                                data: ['2010','2011','2012','2013','2014','2015','2016','2017','2018','2019'],
+                                axisPointer: {
+                                    type: 'shadow'
+                                }
+                            }
+                        ],
+                        yAxis: [
+                            {
+                                type: 'value',
+                                name: '金额',
+                                {#min: -100,#}
+                                {#max: 250,#}
+                                {#interval: 100,#}
+                                axisLabel: {
+                                    formatter: '{value} 百万元'
+                                }
+                            },
+                            {
+                                type: 'value',
+                                name: '金额',
+                                {#min: -20,#}
+                                {#max: 100,#}
+                                {#interval: 20,#}
+                                axisLabel: {
+                                    formatter: '{value}千万元'
+                                }
+                            }
+                        ],
+                        series: [
+                            {
+                                name:'营业收入',
+                                type:'bar',
+                                data:obj[1]
+                            },
+                            {
+                                name:'营业利润',
+                                type:'bar',
+                                data:obj[2]
+                            },
+                            {
+                                name:'利润总额',
+                                type:'bar',
+                                data:obj[3]
+                            },
+                            {
+                                name:'总资产',
+                                type:'line',
+                                yAxisIndex: 1,
+                                data:obj[4]
+                            },
+                            {
+                                name:'总负债',
+                                type:'line',
+                                yAxisIndex: 1,
+                                data:obj[5]
+                            },
+                            {
+                                name:'经营活动产生的现金流量净额',
+                                type:'line',
+                                {#yAxisIndex: 1,#}
+                                data:obj[6]
+                            },
+                            {
+                                name:'投资活动产生的现金流量净额',
+                                type:'line',
+                                {#yAxisIndex: 1,#}
+                                data:obj[7]
+                            },
+                            {
+                                name:'筹资活动产生的现金流量净额',
+                                type:'line',
+                                {#yAxisIndex: 1,#}
+                                data:obj[8]
+                            }
+                        ]
+                    };
+                    ;
+                    if (option && typeof option === "object") {
+                        myChart.setOption(option, true);
+                    }
+
+
+                }
+            });
+
+          });
+        });
+                        var oSeason=document.getElementById('season1');
+                        oSeason.click();
+        }
+
+
+    function GetRequest() {
+            var url = location.search; //获取url中"?"符后的字串
+            var id=url.split('=')[1]
+            return id;
+        }
+
+
+
+</script>
+
+{#   *********************************************************** 搜索框js#}
     <script>
        function searchToggle(obj, evt){
                 var container = $(obj).closest('.search-wrapper');
@@ -72,8 +623,13 @@
              text-align: left;
          }
 
+         .die{
+             color: rgb(18,152,0);
+         }
 
-
+         .zhang{
+             color: rgb(254,0,0);
+         }
 </style>
 </head>
 <body>
@@ -89,114 +645,7 @@
 </script>
 
 <div class="layui-tab layui-tab-brief company_data" lay-filter="company_data">
-  <ul class="layui-tab-title">
-    <li class="layui-this">行情走势</li>
-    <li>公司概况</li>
-    <li>公司高管</li>
-    <li>股份结构</li>
-    <li>十大股东</li>
-    <li>财务报表</li>
-    <li>财务分析</li>
-    <li>主营构成</li>
-  </ul>
-  <div class="layui-tab-content">
-{#      &***************************************************************************行情走势#}
-        <div class="layui-tab-item layui-show">
-            <div id="hangqingzoushi" style="min-width:400px;" class="content-item"></div>
-            <script>
-                Highcharts.setOptions({
-                    global: {
-                        useUTC: false
-                    }
-                });
-
-
-
-                function activeLastPointToolip(chart) {
-                    var points = chart.series[0].points;
-                    chart.tooltip.refresh(points[points.length - 1]);
-                }
-                var chart = Highcharts.chart('hangqingzoushi', {
-                    chart: {
-                        type: 'spline',
-                        marginRight: 10,
-                        events: {
-                            load: function () {
-                                var series = this.series[0],
-                                    chart = this;
-                                activeLastPointToolip(chart);
-                                setInterval(function () {
-                                                                                                        {#******************y是传入的实时股价**************#}
-                                    $.ajax({
-                                           type: 'get',
-                                           url: '/getrandom',
-                                           success: function (ans) {
-                                               var x = (new Date()).getTime(),y; // 当前时间
-                                               console.log(parseFloat(ans));
-                                               y=parseFloat(ans);
-                                               series.addPoint([x, y], true, true);
-                                                activeLastPointToolip(chart);
-                                           }
-                                         });
-
-                                }, 1000*60);                                                                                             {# 1000*60 一分钟 #}
-                            }
-                        }
-                    },
-                    title: {
-                        text: '实时股价'
-                    },
-                    xAxis: {
-                        type: 'datetime',
-                        //间距，时间戳，以下表示间距为1天，如果想表示间距为1周，就这么写
-                        //7*24*3600*1000
-                        tickInterval:  60* 1000,//一分钟
-                        //格式化时间，day,week....
-                        dateTimeLabelFormats: {
-                            minute:'%H:%M'
-                        },
-                        tickmarkPlacement:'on'
-                    },
-                    yAxis: {
-                        title: {
-                            text: null
-                        }
-                    },
-                    tooltip: {
-                        formatter: function () {
-                            return '<b>' + this.series.name + '</b><br/>' +
-                                {#Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +#}
-                                {#Highcharts.numberFormat(this.y, 2);#}
-                            Highcharts.dateFormat('%Y-%m-%d %H:%M:%S', this.x) + '<br/>' +
-                                Highcharts.numberFormat(this.y, 2);
-                        }
-                    },
-                    legend: {
-                        enabled: false
-                    },
-                    series: [{
-                        name: '实时股价数据',
-                        data: (function () {
-                            // 生成随机值
-                            var data = [],
-                                time = (new Date()).getTime(),
-                                i;
-                            for (i = -19; i <= 0; i += 1) {
-                                data.push({
-                                    x: time + i * 1000*60,
-                                    y: Math.random()
-                                });
-                            }
-                            return data;
-                        }())
-                    }]
-                });
-            </script>
-        </div>
-{#      &***************************************************************************公司概况#}
-        <div class="layui-tab-item">
-            <div class="layui-fluid">
-                <div class="company_title layui-row layui-col-space5" style="height: 100px;background: rgb(242,242,242)">
+    <div class="company_title layui-row layui-col-space5" style="height: 100px;background: rgb(242,242,242)">
                       <div class="layui-col-md2">
                           <div style="text-align: center;font-size:25px;" id="shortname" class="content-item-data">公司简称</div>
                           <div style="text-align: center;font-size:18px;color: gray" id="code" class="content-item-data">证券号</div> </div>
@@ -209,72 +658,48 @@
                       </div>
                       <div class="layui-col-md2">
                           <div class="layui-col-md8">
-                                <div style="text-align: center" class="content-item-data"><span id="sub-trend-value" style="font-size: 30px;color: rgb(18,152,0);"></span></div>
+                                <div style="text-align: center" class="content-item-data"><span id="sub-trend-value" style="font-size: 30px;"></span></div>
                                 <div style="text-align: center" class="content-item-data"><span id="time" style="font-size: 16px;color:gray;"></span></div>
                           </div>
                           <div class="layui-col-md4">
-                                other
+                                <div class="layui-col-md1">
+                                    <div class="content-item-data"><span id="zhangdielv" style="font-size: 20px;"></span></div>
+                                    <div class="content-item-data"><span id="minunte" style="font-size: 16px;color:gray;"></span></div>
+                                </div>
                           </div>
                       </div>
                       <div class="layui-col-md1"><div class="content-item-data">今开：<span id="todayopen"></span></div><div class="content-item-data">昨收：<span id="yesterdatclose"></span></div></div>
                       <div class="layui-col-md1"><div class="content-item-data">最高：<span id="maxx"></span></div><div class="content-item-data">最低：<span id="minn"></span></div></div>
-                      <div class="layui-col-md2"><div class="content-item-data">成交量：<span id="dealaccount"></span></div><div class="content-item-data">成交额：<span id="dealmonney"></span></div></div>
-                      <div class="layui-col-md1"><div class="content-item-data">振幅：<span id="zhenfu"></span></div><div class="content-item-data">换手：<span id="huanshou"></span></div></div>
-                      <div class="layui-col-md1"><div class="content-item-data">市盈率：<span id="shiying"></span></div><div class="content-item-data">市净率：<span id="shijing"></span></div></div>
-                      <div class="layui-col-md1"><div style="line-height: 50px;margin-left: 5px;">市龄:<span id="year"></span></div></div>
+                      <div class="layui-col-md3">
+                          <div class="layui-col-md6"><div class="content-item-data">成交量：<span id="dealaccount"></span></div><div class="content-item-data">成交额：<span id="dealmonney"></span></div></div>
+                          <div class="layui-col-md6"><div class="content-item-data">总市值：<span id="zongshizhi"></span></div><div class="content-item-data">流通市值：<span id="liutongshizhi"></span></div></div>
+                      </div>
+                      <div class="layui-col-md1"><div class="content-item-data">涨跌额：<span id="zhangdiee"></span></div><div class="content-item-data">涨跌幅：<span id="zhangdiefu"></span></div></div>
+                      <div class="layui-col-md1"><div style="line-height: 50px;margin-left: 5px;">换手率:<span id="huanshou"></span></div></div>
 {#                      <div class="layui-col-md1">9</div>#}
                    </div>
-                <script>
-                        var oShortname=document.getElementById('shortname');
-                        var oCode=document.getElementById('code');
-                        var oAdd_button=document.getElementById('add_button');
-                        var oSubtrendvalue=document.getElementById('sub-trend-value');
-                        var oTime=document.getElementById('time');
-                        var oTodayopen=document.getElementById('todayopen');
-                        var oYesterdayclose=document.getElementById('yesterdatclose');
-                        var oMaxx=document.getElementById('maxx');
-                        var oMinn=document.getElementById('minn');
-                        var oDealaccount=document.getElementById('dealaccount');
-                        var oDealmonney=document.getElementById('dealmonney');
-                        var oZhenfu=document.getElementById('zhenfu');
-                        var oHuanshou=document.getElementById('huanshou');
-                        var oShiying=document.getElementById('shiying');
-                        var oShijing=document.getElementById('shijing');
-                        var oYear=document.getElementById('year');
-                        oAdd_button.onclick=function(){
-                            if (getCookie("username") != 'false') {
-                                alert("添加成功！"+getCookie("username"));
-                            } else {
-                                alert("请先登录！");
-                                document.getElementById('btn_showlogin').onclick();
-                            }
+  <ul class="layui-tab-title" style="margin-top: 20px">
+    <li class="layui-this">行情走势</li>
+    <li>公司概况</li>
+    <li>公司高管</li>
+    <li>股份结构</li>
+    <li>十大股东</li>
+{#    <li>财务报表</li>#}
+    <li>财务分析</li>
+    <li>主营构成</li>
+  </ul>
+  <div class="layui-tab-content" style="width: 100%">
+{#      &***************************************************************************行情走势#}
+        <div class="layui-tab-item layui-show">
+            <div id="hangqingzoushi" style="min-width:400px;" class="content-item"></div>
 
-                        }
-                        $.ajax({
-                             type:'get',
-                             url:'/company_gaikuang',
-                             success:function (data) {
-                                 var obj = JSON.parse(data);
-                                 oShortname.innerText=obj["shortname"];
-                                 oCode.innerText=obj["code"];
-                                 oSubtrendvalue.innerText=obj["sub-trend-value"];
-                                 oTime.innerText=obj["time"];
-                                 oTodayopen.innerText=obj["todayopen"];
-                                 oYesterdayclose.innerText=obj["yesterdatclose"];
-                                 oMaxx.innerText=obj["maxx"];
-                                 oMinn.innerText=obj["minn"];
-                                 oDealaccount.innerText=obj["dealaccount"];
-                                 oDealmonney.innerText=obj["dealmonney"];
-                                 oZhenfu.innerText=obj["zhenfu"];
-                                 oHuanshou.innerText=obj["huanshou"];
-                                 oShiying.innerText=obj["shiying"];
-                                 oShijing.innerText=obj["shijing"];
-                                 oYear.innerText=obj["year"];
-                                 console.log(obj);
-                             }
-                        });
 
-                    </script>
+        </div>
+{#      &***************************************************************************公司概况#}
+        <div class="layui-tab-item">
+            <div class="layui-fluid">
+
+
                 <table class="layui-table" lay-even style="margin-top: 50px;text-align: center">
                   <colgroup>
                     <col width="100">
@@ -309,33 +734,7 @@
                     </tr>
                   </tbody>
                 </table>
-                <script>
-                        var oBirthday=document.getElementById('birthday');
-                        var oEmail=document.getElementById('email');
-                        var oMarketday=document.getElementById('marketday');
-                        var oTelephone=document.getElementById('telephone');
-                        var oWebsite=document.getElementById('website');
-                        var oFax=document.getElementById('fax');
-                        var oRegisteraddress=document.getElementById('registeraddress');
-                        var oWorkaddress=document.getElementById('workaddress');
-                        $.ajax({
-                             type:'get',
-                             url:'/company_gaikuang',
-                             success:function (data) {
-                                 var obj = JSON.parse(data);
-                                 oBirthday.innerText=obj["birthday"];
-                                 oEmail.innerText=obj["email"];
-                                 oMarketday.innerText=obj["marketday"];
-                                 oTelephone.innerText=obj["telephone"];
-                                 oWebsite.innerText=obj["website"];
-                                 oFax.innerText=obj["fax"];
-                                 oRegisteraddress.innerText=obj["registeraddress"];
-                                 oWorkaddress.innerText=obj["workaddress"];
 
-                                 console.log(obj);
-                             }
-                        });
-                </script>
             </div>
         </div>
 {#      ****************************************************************************公司高管#}
@@ -367,181 +766,96 @@
                     </tr>
                   </tbody>
                 </table>
-                <script>
-                        var ochairman=document.getElementById('chairman');
-                        var ogeneralmanager=document.getElementById('generalmanager');
-                        var ofinancialofficer=document.getElementById('financialofficer');
-                        var osecretary=document.getElementById('secretary');
-                        var omember=document.getElementById('member');
-                        $.ajax({
-                             type:'get',
-                             url:'/company_gaikuang',
-                             success:function (data) {
-                                 var obj = JSON.parse(data);
-                                 ochairman.innerText=obj["chairman"];
-                                 ogeneralmanager.innerText=obj["generalmanager"];
-                                 ofinancialofficer.innerText=obj["financialofficer"];
-                                 osecretary.innerText=obj["secretary"];
-                                 omember.innerText=obj["member"];
-                                 console.log(obj);
-                             }
-                        });
-                </script>
+
             </div>
         </div>
 {#      ****************************************************************************股份结构#}
         <div class="layui-tab-item">
-            <div class="layui-fluid" style="text-align: center;">
+            <div class="layui-fluid" style="text-align: center;position:absolute;left: 170px">
                  <table id="shares_struct"  lay-filter="shares_struct" style="text-align: center;"></table>
              </div>
-            <script>
-                layui.use('table', function(){
-                var table = layui.table;
-                table.render({
-                    elem: '#shares_struct',
-                    width:1000,
-                    url:'/get_sharesstruct_table',
-                    {#page:true,#}
-                    cols: [[ //表头
-                              {field: 'change_date', title: '变动日期',width:200,sort:true,align:'center'},
-                              {field: 'change_reason', title: '变动原因',width:200,align:'center'},
-                              {field: 'total_shares', title: '总股数(万股)',width:200,sort:true,align:'center'},
-                              {field: 'liutong_shares', title: '已流通股份(万股)',width:200,sort:true,align:'center'},
-                              {field: 'limite_shares', title: '流通受限股份(万股)',width:200,sort:true,align:'center'},
-                            ]]
-                })
-            });
-            </script>
         </div>
 {#      ****************************************************************************十大股东#}
         <div class="layui-tab-item">
-             <div class="layui-fluid" style="text-align: center;">
-                 <table id="top10_member"  lay-filter="top10_member" ></table>
-             </div>
             <script>
-                layui.use('table', function(){
-                var table = layui.table;
-                table.render({
-                    elem: '#top10_member',
-                    width:800,
-                    url:'/get_top10member_table',
-                    {#page:true,#}
-                    cols: [[ //表头
-                              {field: 'ranking', title: '股东名次',width:100,align:'center'},
-                              {field: 'membertname', title: '股东名称',width:400,align:'center'},
-                              {field: 'sharehold_num', title: '持股数量(万股)',width:100,align:'center'},
-                              {field: 'sharehold_pro', title: '持股比例(%)',width:100,align:'center'},
-                              {field: 'nature', title: '股份性质',width:100,align:'center'},
-                            ]]
-                })
-            });
+                  layui.use('element', function(){
+                  var element = layui.element;
+
+                  //一些事件监听
+                  element.on('tab(datetab)', function(data){
+                    var stock_code = GetRequest();
+                    var data1 = {data: JSON.stringify({"code":stock_code,"datetype":this.innerText})}
+                    {#alert(stock_code+" "+this.innerText);#}
+                    layui.use('table', function(){
+                        var table = layui.table;
+                        table.render({
+                            elem: '.top10_member',
+                            method:'POST',
+                            where:data1,
+                            {#width:800,#}
+                            url:'/get_top10member_table',
+                            {#page:true,#}
+                            cols: [[ //表头
+                                      {field: 'ranking', title: '股东名次',width:170,align:'center'},
+                                      {field: 'membertname', title: '股东名称',width:400,align:'center'},
+                                      {field: 'sharehold_num', title: '持股数量(万股)',width:200,align:'center'},
+                                      {field: 'sharehold_pro', title: '持股比例(%)',width:200,align:'center'},
+                                      {field: 'nature', title: '股份性质',width:200,align:'center'},
+                                    ]]
+                        })
+                    });
+
+
+                  });
+                });
+
+
+
             </script>
+            <div class="layui-tab layui-tab-card" lay-filter="datetab" style="width: 98%">
+              <ul class="layui-tab-title">
+                <li class="layui-this datetypes" id="datetype0">日期1</li>
+                <li class="datetypes">日期2</li>
+                <li class="datetypes">日期3</li>
+                <li class="datetypes">日期4</li>
+                <li class="datetypes">日期5</li>
+              </ul>
+              <div class="layui-tab-content" style="height: 500px;">
+                <div class="layui-tab-item layui-show"></div>
+                <div class="layui-tab-item"></div>
+                <div class="layui-tab-item"></div>
+                <div class="layui-tab-item"></div>
+                <div class="layui-tab-item"></div>
+                <div class="layui-fluid" style="text-align: center;float: left;left: 50px;top: 30px;">
+                     <table class="top10_member"   ></table>
+                </div>
+              </div>
+            </div>
         </div>
 {#      ****************************************************************************财务报表#}
-        <div class="layui-tab-item"></div>
+{#        <div class="layui-tab-item"></div>#}
 {#      **********************************************************************财务分析#}
-        <div class="layui-tab-item">
-            <div id="caiwufenxi" class="content-item"></div>
-            <script type="text/javascript">
-                var dom = document.getElementById("caiwufenxi");
-                var myChart = echarts.init(dom);
-                var app = {};
-                option = null;
-                app.title = '折柱混合';
+      <script>
 
-                option = {
-                    tooltip: {
-                        trigger: 'axis',
-                        axisPointer: {
-                            type: 'cross',
-                            crossStyle: {
-                                color: '#999'
-                            }
-                        }
-                    },
-                    toolbox: {
-                        feature: {
-                            dataView: {show: true, readOnly: false},
-                            magicType: {show: true, type: ['line', 'bar']},
-                            restore: {show: true},
-                            saveAsImage: {show: true}
-                        }
-                    },
-                    legend: {
-                        data:['营业收入','营业利润','营业利润总额','总资产增长率','净资产收益率','资产负债率']
-                    },
-                    xAxis: [
-                        {
-                            type: 'category',
-                            data: ['季度1','季度2','季度3','季度4','季度5','季度6','季度7','季度8','季度9','季度10','季度11','季度12'],
-                            axisPointer: {
-                                type: 'shadow'
-                            }
-                        }
-                    ],
-                    yAxis: [
-                        {
-                            type: 'value',
-                            name: '利润',
-                            min: 0,
-                            max: 250,
-                            interval: 50,
-                            axisLabel: {
-                                formatter: '{value} 万元'
-                            }
-                        },
-                        {
-                            type: 'value',
-                            name: '百分率',
-                            min: 0,
-                            max: 100,
-                            interval: 20,
-                            axisLabel: {
-                                formatter: '{value}%'
-                            }
-                        }
-                    ],
-                    series: [
-                        {
-                            name:'营业收入',
-                            type:'bar',
-                            data:[2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3]
-                        },
-                        {
-                            name:'营业利润',
-                            type:'bar',
-                            data:[2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3]
-                        },
-                        {
-                            name:'营业利润总额',
-                            type:'bar',
-                            data:[2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
-                        },
-                        {
-                            name:'总资产增长率',
-                            type:'line',
-                            yAxisIndex: 1,
-                            data:[2.3, 2.5, 3.4, 4.9, 6.1, 20.7, 20.5, 23.7, 23.2, 16.4, 12.9, 6.7]
-                        },
-                        {
-                            name:'净资产收益率',
-                            type:'line',
-                            yAxisIndex: 1,
-                            data:[5, 6, 7, 8, 11, 60.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
-                        },
-                        {
-                            name:'资产负债率',
-                            type:'line',
-                            yAxisIndex: 1,
-                            data:[2.3, 2.4, 3.5, 4.6, 6.7, 47.8, 20.4, 23.1, 23.5, 16.3, 12.5, 6.6]
-                        }
-                    ]
-                };
-                ;
-                if (option && typeof option === "object") {
-                    myChart.setOption(option, true);
-                }
-           </script>
+      </script>
+        <div class="layui-tab-item">
+            <div class="layui-tab layui-tab-card" lay-filter="caiwufenxi" style="width: 98%">
+              <ul class="layui-tab-title">
+                <li class="layui-this" id="season1">1季度</li>
+                <li>2季度</li>
+                <li>3季度</li>
+                <li>4季度</li>
+              </ul>
+              <div class="layui-tab-content" style="height: 600px;">
+                <div class="layui-tab-item layui-show"></div>
+                <div class="layui-tab-item"></div>
+                <div class="layui-tab-item"></div>
+                <div class="layui-tab-item"></div>
+                <div id="caiwufenxi" class="content-item"></div>
+              </div>
+            </div>
+
+
         </div>
 {#      **********************************************************************主营构成#}
         <div class="layui-tab-item">
@@ -684,7 +998,7 @@
           <form onSubmit="submitFn(this, event);">
                 <div class="search-wrapper active">
                     <div class="input-holder">
-                        <input type="text" class="search-input" placeholder="请输入关键词（代码/高管/关键字..）" />
+                        <input type="text" class="search-input" placeholder="请输入关键词（代码/主营业务/关键字..）" />
                         <button class="search-icon" onClick="searchToggle(this, event);"><span></span></button>
                     </div>
                     <span class="close" onClick="searchToggle(this, event);"></span>
@@ -699,9 +1013,14 @@
       <div class="icons">
         <div class="secondary-icons">
 {#          <i class="icon-second"><img src="../static/img/icon-198.svg"></i>#}
-          <i class="icon-second" id="btn_showlogin"><img src="../static/img/icon-171.svg"></i>
+          <i class="layui-icon layui-icon-home icon-second" style="font-size: 25px;font-weight: bolder;position: absolute;top: 23px;right: 10%" onclick="location='index1'"></i>
+          <i class="icon-second" id="btn_showlogin" ><img src="../static/img/icon-171.svg"></i>
         </div>
-
+        <div class="signed-user-menu box-shadow" id="signed-user-menu">
+            <div id="usrpage" style="height: 50%;line-height: 40px">个人主页</div>
+            <div style="height: 1px;background: rgb(224,224,224);width: 90%;margin: auto"></div>
+            <div id="signout" style="height: 50%;line-height: 40px">退出登录</div>
+        </div>
         <i class="icon-menu"><span></span></i>
       </div>
     </div>
@@ -837,7 +1156,8 @@
     </form>
   </div>
   <div class="cover"></div>
-    <script src="../static/script/script.js"></script>
+
+<script src="../static/script/script.js"></script>
 <script type="text/javascript" src="../static/script/login.js"></script>
 
 </body>
