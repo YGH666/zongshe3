@@ -491,7 +491,7 @@
                             },
                             {
                                 type: 'value',
-                                name: '金额',
+                                name: '金额（总资产&总负债）',
                                 {#min: -20,#}
                                 {#max: 100,#}
                                 {#interval: 20,#}
@@ -704,7 +704,7 @@
     <li>十大股东</li>
 {#    <li>财务报表</li>#}
     <li>财务分析</li>
-    <li>主营构成</li>
+{#    <li>主营构成</li>#}
   </ul>
   <div class="layui-tab-content" style="width: 100%">
 {#      &***************************************************************************行情走势#}
@@ -875,136 +875,7 @@
 
 
         </div>
-{#      **********************************************************************主营构成#}
-        <div class="layui-tab-item">
-            <div class="content-item">
-                <div id="zhuyinggoucheng1" style="width: 500px;height: 580px;float: left;"></div>
-                <script type="text/javascript">
-                var dom = document.getElementById("zhuyinggoucheng1");
-                // var myChart = echarts.init(dom);
-                var myChart = echarts.init(dom,null,{ renderer : 'svg' });
-                var app = {};
-                option = null;
-                app.title = '收入构成饼图';
 
-                option = {
-                    title: {
-                        text: '收入构成饼图',
-                        left: 'center'
-                    },
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: "{a} <br/>{b}: {c} ({d}%)"
-                    },
-                    legend: {
-                        orient: 'vertical',
-                        x: 'left',
-                        data:['产品1','产品2','产品3','产品4','产品5']
-                    },
-                    series: [
-                        {
-                            name:'访问来源',
-                            type:'pie',
-                            radius: ['50%', '70%'],
-                            avoidLabelOverlap: false,
-                            label: {
-                                normal: {
-                                    show: false,
-                                    position: 'center'
-                                },
-                                emphasis: {
-                                    show: true,
-                                    textStyle: {
-                                        fontSize: '30',
-                                        fontWeight: 'bold'
-                                    }
-                                }
-                            },
-                            labelLine: {
-                                normal: {
-                                    show: false
-                                }
-                            },
-                            data:[
-                                {value:335, name:'产品1'},
-                                {value:310, name:'产品2'},
-                                {value:234, name:'产品3'},
-                                {value:135, name:'产品4'},
-                                {value:1548, name:'产品5'}
-                            ]
-                        }
-                    ]
-                };
-                ;
-                if (option && typeof option === "object") {
-                    myChart.setOption(option, true);
-                }
-       </script>
-                <div id="zhuyinggoucheng2" style="width: 500px;height: 580px;float: right;"></div>
-                <script type="text/javascript">
-                var dom = document.getElementById("zhuyinggoucheng2");
-                // var myChart = echarts.init(dom);
-                var myChart = echarts.init(dom,null,{ renderer : 'svg' });
-                var app = {};
-                option = null;
-                app.title = '利润构成饼图';
-
-                option = {
-                    title: {
-                        text: '利润构成饼图',
-                        left: 'center'
-                    },
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: "{a} <br/>{b}: {c} ({d}%)"
-                    },
-                    legend: {
-                        orient: 'vertical',
-                        x: 'left',
-                        data:['产品1','产品2','产品3','产品4','产品5']
-                    },
-                    series: [
-                        {
-                            name:'访问来源',
-                            type:'pie',
-                            radius: ['50%', '70%'],
-                            avoidLabelOverlap: false,
-                            label: {
-                                normal: {
-                                    show: false,
-                                    position: 'center'
-                                },
-                                emphasis: {
-                                    show: true,
-                                    textStyle: {
-                                        fontSize: '30',
-                                        fontWeight: 'bold'
-                                    }
-                                }
-                            },
-                            labelLine: {
-                                normal: {
-                                    show: false
-                                }
-                            },
-                            data:[
-                                {value:335, name:'产品1'},
-                                {value:310, name:'产品2'},
-                                {value:234, name:'产品3'},
-                                {value:135, name:'产品4'},
-                                {value:1548, name:'产品5'}
-                            ]
-                        }
-                    ]
-                };
-                ;
-                if (option && typeof option === "object") {
-                    myChart.setOption(option, true);
-                }
-       </script>
-            </div>
-
-        </div>
   </div>
 </div>
 

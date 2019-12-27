@@ -6,16 +6,11 @@ import time
 import pymysql
 from email.mime.text import MIMEText
 from email.utils import formataddr
-
 from flask_uploads import configure_uploads,UploadSet
 import os,base64
-# from config import  app
-
-
-
-
 
 analysis = Blueprint('webaccess', __name__)
+
 
 def getConn():
     conn = pymysql.connect(host='192.168.182.130', port=3306, database='test_db',
@@ -23,9 +18,10 @@ def getConn():
                                password='YgH1@513!', charset='utf8')
     return conn
 
+
 @analysis.route('/')
 def hello_world():
-    return 'Hello World!'
+    return render_template("index1.html")
 
 
 @analysis.route('/login')
@@ -42,9 +38,11 @@ def index1():
 def details():
     return render_template("details.html")
 
+
 @analysis.route('/company')
 def company():
     return render_template("company.html")
+
 
 @analysis.route('/user')
 def user():

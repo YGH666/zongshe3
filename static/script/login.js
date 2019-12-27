@@ -6,6 +6,7 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
     document.getElementById('close_findpass').onclick=closeFindpass;
 
 
+
     var mini_login=document.getElementsByClassName('mini_login')[0];
     var cover=document.getElementsByClassName('cover')[0];
     var mini_signup=document.getElementsByClassName('mini_signup')[0];
@@ -41,6 +42,28 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
             mini_login.style.display='block';
             mini_findpass.style.display='none'
             cover.style.display='block';
+
+            mini_login.onkeydown=function(ev){
+                var event=ev ||event;
+                if(event.keyCode==13){
+                    signin()
+                }
+            };
+
+            mini_signup.onkeydown=function(ev){
+                var event=ev ||event;
+                if(event.keyCode==13){
+                    signup()
+                }
+            };
+
+            mini_findpass.onkeydown=function(ev){
+                var event=ev ||event;
+                if(event.keyCode==13){
+                    findbackpass()
+                }
+            };
+
 
             mini_login.style.left=(document.body.clientWidth-mini_login.clientWidth)/2+"px";
             mini_login.style.top=(document.body.clientHeight-mini_login.clientHeight)/3+"px";
@@ -262,7 +285,11 @@ document.getElementById('showSignin2').onclick= document.getElementById('btn_sho
             document.getElementsByClassName('paserr')[1].style.visibility='visible';
             correct=false;
         }
-
+        else  if(papassword_signup.value.split(' ').length>1){
+            document.getElementsByClassName('paserr')[1].style.visibility='visible';
+            alert('密码不能包含空格！')
+            correct=false;
+        }
         else  if(papassword_signup.value.length<6||papassword_signup.value.length>12){
             document.getElementsByClassName('paserr')[2].style.visibility='visible';
             correct=false;

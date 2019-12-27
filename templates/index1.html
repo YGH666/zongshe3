@@ -17,19 +17,11 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat/dist/ecStat.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/dataTool.min.js"></script>
-{#    <script type="text/javascript" src="../static/js/rotate.js"></script>#}
-
-{#    <script src="../static/js/jquery-1.11.0.min.js" type="text/javascript"></script>#}
-
-
-<!--Required libraries-->
 <script src="../static/script/jquery-v1.10.2.min.js" type="text/javascript"></script>
 <script src="../static/script/modernizr-custom-v2.7.1.min.js" type="text/javascript"></script>
 <script src="../static/script/jquery-finger-v0.1.0.min.js" type="text/javascript"></script>
-<!--Include flickerplate-->
 <link href="../static/styles/flickerplate.css"  type="text/css" rel="stylesheet">
 <script src="../static/script/flickerplate.min.js" type="text/javascript"></script>
-<!--Execute flickerplate-->
 
 <script>
 var radius = 150;
@@ -52,8 +44,7 @@ var howElliptical=1;
 var aA=null;
 var oDiv=null;
 
-window.onload=function ()
-{
+function rotate() {
 	var i=0;
 	var oTag=null;
 
@@ -97,7 +88,7 @@ window.onload=function ()
 	};
 
 	setInterval(update, 30);
-};
+}
 
 function update()
 {
@@ -202,7 +193,7 @@ function positionAll()
 	var aTmp=[];
 	var oFragment=document.createDocumentFragment();
 
-	//�������
+
 	for(i=0;i<aA.length;i++)
 	{
 		aTmp.push(aA[i]);
@@ -234,7 +225,7 @@ function positionAll()
 			phi = Math.random()*(Math.PI);
 			theta = Math.random()*(2*Math.PI);
 		}
-		//����任
+
 		mcList[i-1].cx = radius * Math.cos(theta)*Math.sin(phi);
 		mcList[i-1].cy = radius * Math.sin(theta)*Math.sin(phi);
 		mcList[i-1].cz = radius * Math.cos(phi);
@@ -270,15 +261,20 @@ function sineCosine( a, b, c)
 	cc = Math.cos(c * dtr);
 }
 
-
-
-
 </script>
-
+<style type="text/css">
+				*{margin:0;padding:0;list-style-type:none;}
+				a,img{border:0;text-decoration: none;}
+				/* rotate */
+                h2{position: relative;margin: auto;text-align: center;font-size: 18px;font-weight: bolder}
+				#rotate{width:400px;height:450px;position:relative;margin:5px auto;}
+				.rotatea{position:absolute;top:0px;left:0px;color:#292929;font-weight:bold;padding:3px 6px;font-size:14px;}
+				.rotatea:hover{border:1px solid rgb(19, 8, 3);background:white;border-radius:5px;color: white}
+</style>
 {#*****************************************************************图片切换js#}
 <script>
 $(document).ready(function(){
-  
+
                 $.ajax({
                     type:'GET',
                     url:'/getincometable',
@@ -294,56 +290,56 @@ $(document).ready(function(){
 
                 function incometable(obj) {
                     var dom = document.getElementById("container1");
-				var myChart = echarts.init(dom,null,{ renderer : 'svg' });
-				var app = {};
-				option = null;
-				option = {
-				     title : {
-                            text: '主营收入级别分布',
-                            subtext: '亿级',
-                            x:'center'
-                        },
-                tooltip: {
-                    trigger: 'item',
-                    formatter: "{a} <br/>{b}: {c} ({d}%)"
-                },
-                legend: {
-                    orient: 'vertical',
-                    x: 'left',
-                    data:['低于1亿','1亿到10亿','10亿到100亿','100亿到200亿','200亿到400亿','400亿到千亿','千亿到万亿','高于万亿']
-                },
-                series: [
-                    {
-                        name:'访问来源',
-                        type:'pie',
-                        radius: ['50%', '70%'],
-                        avoidLabelOverlap: false,
-                        label: {
-                            normal: {
-                                show: false,
-                                position: 'center'
+                    var myChart = echarts.init(dom,null,{ renderer : 'svg' });
+                    var app = {};
+                    option = null;
+                    option = {
+                         title : {
+                                text: '主营收入级别分布',
+                                subtext: '亿级',
+                                x:'center'
                             },
-                            emphasis: {
-                                show: true,
-                                textStyle: {
-                                    fontSize: '30',
-                                    fontWeight: 'bold'
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: "{a} <br/>{b}: {c} ({d}%)"
+                    },
+                    legend: {
+                        orient: 'vertical',
+                        x: 'left',
+                        data:['低于1亿','1亿到10亿','10亿到100亿','100亿到200亿','200亿到400亿','400亿到千亿','千亿到万亿','高于万亿']
+                    },
+                    series: [
+                        {
+                            name:'访问来源',
+                            type:'pie',
+                            radius: ['50%', '70%'],
+                            avoidLabelOverlap: false,
+                            label: {
+                                normal: {
+                                    show: false,
+                                    position: 'center'
+                                },
+                                emphasis: {
+                                    show: true,
+                                    textStyle: {
+                                        fontSize: '30',
+                                        fontWeight: 'bold'
+                                    }
                                 }
-                            }
-                        },
-                        labelLine: {
-                            normal: {
-                                show: false
-                            }
-                        },
-                        data:obj
-                    }
-                ]
-            };
-            ;
-            if (option && typeof option === "object") {
-                myChart.setOption(option, true);
-            }
+                            },
+                            labelLine: {
+                                normal: {
+                                    show: false
+                                }
+                            },
+                            data:obj
+                        }
+                    ]
+                };
+                ;
+                if (option && typeof option === "object") {
+                    myChart.setOption(option, true);
+                }
                 }
 
                 $.ajax({
@@ -351,16 +347,23 @@ $(document).ready(function(){
                     type:'get',
                     success:function(data){
                         var obj=JSON.parse(data);
+                        newest(obj);
+                        console.log(obj);
+                    }
+                });
+
+                function newest(obj){
                         var oDiv=document.getElementById('rotate');
+                        document.getElementById('rotate').innerHTML='';
                         for (var i=0;i<obj.length;i++) {
                             var oA = document.createElement("a");
                             oA.href="company?id="+obj[i]["code"];
                             oA.innerText = obj[i]["name"];
+                            oA.classList.add("rotatea");
                             oDiv.appendChild(oA);
                         }
-                        console.log(obj);
-                    }
-                });
+                        rotate();
+                }
 
 	$('.flicker-example').flicker();
 
@@ -463,6 +466,7 @@ function get_usrimg() {
                 evt.preventDefault();
             }
 </script>
+
 </head>
 
 <body>
@@ -489,7 +493,7 @@ function get_usrimg() {
 {#===============================3个介绍模块===================================#}
     <div class="about1">
           <li class="box-shadow">
-              <div class="about-top"><img src="../static/img/雪乃5.JPEG"></div>
+              <div class="about-top"><img src="../static/img/1.jpg"></div>
               <div class="about-bottom">
                   <ul>
                         <h2>关键词查询</h2>
@@ -502,7 +506,7 @@ function get_usrimg() {
               <div class="pic pic1 box-shadow1"></div>
           </li>
           <li class="box-shadow">
-            <div class="about-top"><img src="../static/img/雪乃1.jpg"></div>
+            <div class="about-top"><img src="../static/img/2.jpg"></div>
             <div class="about-bottom">
                     <ul>
                             <h2>K线图</h2>
@@ -514,7 +518,7 @@ function get_usrimg() {
             <div class="pic pic2 box-shadow1"></div>
           </li>
           <li class="box-shadow">
-            <div class="about-top"><img src="../static/img/结衣2.jpg"></div>
+            <div class="about-top"><img src="../static/img/3.jpg"></div>
             <div class="about-bottom">
                     <ul>
                             <h2>数据可视化</h2>
@@ -641,7 +645,7 @@ function get_usrimg() {
   <div class="mini_signup">
     <form class="form-horizontal" id="signup_form" method="POST" action="#">
       <p id="close_minisignup">X</p>
-      <div class="heading">Welcome</div>
+      <div class="heading">Sign up</div>
       <div class="form-group">
         <i id="uimg"></i>
         <input name="username" id="username_signup" type="text" class="form-control" placeholder="E-mail" />
@@ -678,7 +682,7 @@ function get_usrimg() {
   <div class="mini_findpass">
     <form class="form-horizontal" id="findpass_form" method="POST" action="#">
       <p id="close_findpass">X</p>
-      <div class="heading">Welcome</div>
+      <div class="heading">Find Pwd</div>
       <div class="form-group">
         <i id="uimg"></i>
         <input name="username" id="username_findpass" type="text" class="form-control" placeholder="E-mail" />
@@ -729,31 +733,11 @@ function get_usrimg() {
         </div>
        </div>
    </div>
-
-
-			<style type="text/css">
-				*{margin:0;padding:0;list-style-type:none;}
-				a,img{border:0;text-decoration: none;}
-				/* rotate */
-                h2{position: relative;margin: auto;text-align: center;font-size: 18px;font-weight: bolder}
-				#rotate{width:400px;height:450px;position:relative;margin:5px auto;}
-				#rotate a{position:absolute;top:0px;left:0px;color:#292929;font-weight:bold;padding:3px 6px;font-size:14px;}
-				#rotate a:hover{border:1px solid rgb(19, 8, 3);background:white;border-radius:5px;}
-            </style>
 		</div>
 	  </div>
 	</div>
   </div>
 </div>
-
-
-
-
-
-
-
-
-
 
 <script type="text/javascript" src="../static/script/login.js"></script>
 </body>
